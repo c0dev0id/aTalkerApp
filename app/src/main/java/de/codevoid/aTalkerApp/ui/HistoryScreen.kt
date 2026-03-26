@@ -73,14 +73,6 @@ fun HistoryScreen(
             }
         }
 
-        Text(
-            "↑↓ Navigate   CONFIRM Call back   BACK Close",
-            color    = TextSecondary.copy(alpha = 0.7f),
-            fontSize = TextSizeSmall,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 14.dp),
-        )
     }
 }
 

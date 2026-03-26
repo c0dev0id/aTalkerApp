@@ -17,10 +17,14 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import de.codevoid.aTalkerApp.BuildConfig
+import de.codevoid.aTalkerApp.Release
+import de.codevoid.aTalkerApp.UpdateChecker
 import de.codevoid.aTalkerApp.data.CallLogEntry
 import de.codevoid.aTalkerApp.data.CallLogRepository
 import de.codevoid.aTalkerApp.data.Contact
 import de.codevoid.aTalkerApp.data.ContactsRepository
+import kotlinx.coroutines.launch
 
 enum class OverlayTab(val label: String) {
     History("History"),
@@ -44,6 +48,7 @@ fun TabbedOverlay(
     onClose: () -> Unit,
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val onCloseRef = rememberUpdatedState(onClose)
 
     var selectedTab by remember { mutableStateOf(initialTab) }
@@ -53,10 +58,15 @@ fun TabbedOverlay(
     var contactsReady  by remember { mutableStateOf(false) }
     var history        by remember { mutableStateOf(emptyList<CallLogEntry>()) }
 
+    // Update check — runs once on open.
+    var pendingRelease  by remember { mutableStateOf<Release?>(null) }
+    var isDownloading   by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
-        contacts      = ContactsRepository.load(context)
-        contactsReady = true
-        history       = CallLogRepository.load(context)
+        contacts       = ContactsRepository.load(context)
+        contactsReady  = true
+        history        = CallLogRepository.load(context)
+        pendingRelease = UpdateChecker.latestPreRelease(BuildConfig.VERSION_NAME)
     }
 
     Column(
@@ -116,6 +126,32 @@ fun TabbedOverlay(
                             .width(if (isSelected) 40.dp else 0.dp)
                             .height(3.dp)
                             .background(FocusHighlight, RoundedCornerShape(2.dp))
+                    )
+                }
+            }
+            // ↑ update — only visible when a newer release is available
+            if (pendingRelease != null) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .aspectRatio(1f)
+                        .clickable(enabled = !isDownloading) {
+                            val release = pendingRelease ?: return@clickable
+                            scope.launch {
+                                isDownloading = true
+                                val file = UpdateChecker.download(context, release.downloadUrl)
+                                UpdateChecker.install(context, file)
+                                isDownloading = false
+                                pendingRelease = null
+                            }
+                        },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        if (isDownloading) "↓" else "↑",
+                        color      = if (isDownloading) FocusHighlight.copy(alpha = 0.5f) else FocusHighlight,
+                        fontSize   = TextSizeMedium,
+                        fontWeight = FontWeight.Bold,
                     )
                 }
             }

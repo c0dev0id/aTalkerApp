@@ -131,18 +131,6 @@ fun ContactsScreen(
             }
         }
 
-        // ── Hint bar ──────────────────────────────────────────────────────────
-        Text(
-            if (filterFocused)
-                "↑↓ Filter group   CONFIRM ${if (byLastName) "→ First name" else "→ Last name"}   → Contacts   ← Dialpad   BACK Close"
-            else
-                "↑↓ Navigate   CONFIRM Call   ← Filter   BACK Close",
-            color    = TextSecondary.copy(alpha = 0.7f),
-            fontSize = TextSizeSmall,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 14.dp),
-        )
     }
 }
 
@@ -158,7 +146,7 @@ private fun FilterColumn(
         modifier = Modifier
             .width(88.dp)
             .fillMaxHeight()
-            .padding(start = 6.dp, end = 4.dp, top = 4.dp, bottom = 36.dp), // bottom pad clears hint bar
+            .padding(start = 6.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
         verticalArrangement = Arrangement.spacedBy(3.dp),
     ) {
         filterGroups.forEachIndexed { idx, label ->
