@@ -18,6 +18,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import android.view.InputDevice
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -44,6 +45,9 @@ fun ContactsScreen(
             .background(OverlayBackground)
             .focusRequester(focusRequester)
             .onKeyEvent { event ->
+                // Ignore raw keyboard events — the DMD remote sends these in addition to its
+                // broadcast, which we handle separately to avoid double-firing.
+                if (event.nativeKeyEvent.source == InputDevice.SOURCE_KEYBOARD) return@onKeyEvent false
                 if (event.type != KeyEventType.KeyDown || contacts.isEmpty()) return@onKeyEvent false
                 when (event.key) {
                     Key.DirectionUp -> { selectedIndex = navigateUp(selectedIndex, contacts.size); true }

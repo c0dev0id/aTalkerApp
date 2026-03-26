@@ -17,6 +17,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import android.view.InputDevice
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -57,6 +58,7 @@ fun IncomingCallCard(
         pulseAlpha    = pulseAlpha,
         focusRequester = focusRequester,
         onKeyEvent    = { event ->
+            if (event.nativeKeyEvent.source == InputDevice.SOURCE_KEYBOARD) return@CardShell false
             if (event.type != KeyEventType.KeyDown) return@CardShell false
             when (event.key) {
                 Key.DirectionLeft  -> { focusedButton = 0; true }
@@ -104,6 +106,7 @@ fun ActiveCallCard(
         pulseAlpha     = 1.0f,              // steady — call is connected
         focusRequester = focusRequester,
         onKeyEvent     = { event ->
+            if (event.nativeKeyEvent.source == InputDevice.SOURCE_KEYBOARD) return@CardShell false
             if (event.type != KeyEventType.KeyDown) return@CardShell false
             when (event.key) {
                 Key.Enter, Key.NumPadEnter, Key.DirectionCenter,

@@ -6,11 +6,13 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.ServiceInfo
 import android.net.Uri
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import de.codevoid.aTalkerApp.bluetooth.BluetoothHeadsetManager
+import de.codevoid.aTalkerApp.input.DmdRemoteReceiver
 import de.codevoid.aTalkerApp.ui.OverlayWindow
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collectLatest
@@ -26,6 +28,9 @@ class OverlayService : Service() {
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private lateinit var overlayWindow: OverlayWindow
     private lateinit var bluetoothHeadset: BluetoothHeadsetManager
+    private val dmdReceiver = DmdRemoteReceiver { keyCode, isDown ->
+        overlayWindow.dispatchKey(keyCode, isDown)
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -45,6 +50,12 @@ class OverlayService : Service() {
             activate()
         }
 
+        registerReceiver(
+            dmdReceiver,
+            IntentFilter(DmdRemoteReceiver.ACTION),
+            RECEIVER_EXPORTED,
+        )
+
         observeCallState()
         CallManager.showContacts()
     }
@@ -57,6 +68,7 @@ class OverlayService : Service() {
     }
 
     override fun onDestroy() {
+        unregisterReceiver(dmdReceiver)
         scope.cancel()
         overlayWindow.dismiss()
         bluetoothHeadset.release()
