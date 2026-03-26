@@ -16,6 +16,7 @@ import de.codevoid.aTalkerApp.input.DmdRemoteReceiver
 import de.codevoid.aTalkerApp.ui.OverlayWindow
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 
 class OverlayService : Service() {
 
@@ -76,9 +77,9 @@ class OverlayService : Service() {
     }
 
     private fun handleHeadsetButton() {
-        when (val s = CallManager.state.value) {
-            is CallUiState.Incoming -> s.call.answer(0)
-            is CallUiState.Active -> s.call.disconnect()
+        when (val s = CallManager.call.value) {
+            is CallState.Incoming -> s.call.answer(0)
+            is CallState.Active   -> s.call.disconnect()
             else -> Unit
         }
     }
@@ -87,14 +88,12 @@ class OverlayService : Service() {
 
     private fun observeCallState() {
         scope.launch {
-            CallManager.state.collectLatest { state ->
-                // Idle = call ended (declined or hung up); Hidden = user dismissed overlay.
-                // In both cases shut down so the foreground app (e.g. navigation) is unblocked.
-                if (state is CallUiState.Idle || state is CallUiState.Hidden) stopSelf()
-
-                val nm = getSystemService(NotificationManager::class.java)
-                nm.notify(NOTIF_ID, buildNotification())
-            }
+            combine(CallManager.call, CallManager.nav) { call, nav -> call to nav }
+                .collectLatest { (call, nav) ->
+                    // Call ended or user dismissed: return focus to the foreground app.
+                    if (call is CallState.Idle || nav == OverlayNav.Hidden) stopSelf()
+                    getSystemService(NotificationManager::class.java).notify(NOTIF_ID, buildNotification())
+                }
         }
     }
 

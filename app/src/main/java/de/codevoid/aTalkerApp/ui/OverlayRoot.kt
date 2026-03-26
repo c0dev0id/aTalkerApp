@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -17,55 +16,57 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import de.codevoid.aTalkerApp.CallManager
-import de.codevoid.aTalkerApp.CallUiState
+import de.codevoid.aTalkerApp.CallState
+import de.codevoid.aTalkerApp.OverlayNav
 
 @Composable
 fun OverlayRoot(onDial: (String) -> Unit) {
-    val state by CallManager.state.collectAsState()
+    val callState by CallManager.call.collectAsState()
+    val nav       by CallManager.nav.collectAsState()
 
     // Cache the last call state so the card can still render during the exit animation.
-    var cachedCall by remember { mutableStateOf<CallUiState?>(null) }
-    LaunchedEffect(state) {
-        if (state is CallUiState.Incoming || state is CallUiState.Active) cachedCall = state
+    var cachedCall by remember { mutableStateOf<CallState?>(null) }
+    LaunchedEffect(callState) {
+        if (callState is CallState.Incoming || callState is CallState.Active) cachedCall = callState
     }
-    val isCallActive = state is CallUiState.Incoming || state is CallUiState.Active
+    val isCallActive = callState is CallState.Incoming || callState is CallState.Active
 
     OverlayTheme {
         Box(modifier = Modifier.fillMaxSize()) {
 
             // ── Tabbed overlay (contacts / history / dialpad) ─────────────────
-            when (state) {
-                is CallUiState.ShowingContacts -> OverlayFrame(dismissible = true) {
+            when (nav) {
+                OverlayNav.Contacts -> OverlayFrame(dismissible = true) {
                     TabbedOverlay(
                         initialTab = OverlayTab.Contacts,
                         onDial     = onDial,
                         onClose    = { CallManager.hide() },
                     )
                 }
-                is CallUiState.ShowingDialpad -> OverlayFrame(dismissible = true) {
+                OverlayNav.Dialpad -> OverlayFrame(dismissible = true) {
                     TabbedOverlay(
                         initialTab = OverlayTab.Dialpad,
                         onDial     = onDial,
                         onClose    = { CallManager.hide() },
                     )
                 }
-                else -> Unit
+                OverlayNav.Hidden -> Unit
             }
 
-            // ── Call card (slides in from left, out to right) ─────────────────
+            // ── Call card (slides in from right, out to right) ────────────────
             AnimatedVisibility(
                 visible = isCallActive,
                 enter = slideInHorizontally(animationSpec = tween(380)) {  it },
                 exit  = slideOutHorizontally(animationSpec = tween(320)) {  it },
             ) {
                 when (val cs = cachedCall) {
-                    is CallUiState.Incoming -> IncomingCallCard(
+                    is CallState.Incoming -> IncomingCallCard(
                         displayName = cs.displayName,
                         number      = cs.number,
                         onAccept    = { cs.call.answer(0) },
                         onDecline   = { cs.call.reject(false, null) },
                     )
-                    is CallUiState.Active -> ActiveCallCard(
+                    is CallState.Active -> ActiveCallCard(
                         displayName = cs.displayName,
                         number      = cs.number,
                         onHangUp    = { cs.call.disconnect() },

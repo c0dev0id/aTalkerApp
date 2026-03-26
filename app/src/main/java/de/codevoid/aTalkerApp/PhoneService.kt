@@ -13,13 +13,13 @@ class PhoneService : InCallService() {
     override fun onCallAdded(call: Call) {
         call.registerCallback(callCallback)
         updateState(call)
-        // Ensure overlay service is running to display the UI
+        // Ensure the overlay service is running to display the call UI.
         startService(Intent(this, OverlayService::class.java))
     }
 
     override fun onCallRemoved(call: Call) {
         call.unregisterCallback(callCallback)
-        CallManager.update(CallUiState.Idle)
+        CallManager.updateCall(CallState.Idle)
     }
 
     private fun updateState(call: Call) {
@@ -28,13 +28,13 @@ class PhoneService : InCallService() {
         val displayName = details.callerDisplayName
             ?.takeIf { it.isNotBlank() } ?: number
 
-        CallManager.update(
+        CallManager.updateCall(
             when (call.details.state) {
-                Call.STATE_RINGING -> CallUiState.Incoming(call, displayName, number)
+                Call.STATE_RINGING -> CallState.Incoming(call, displayName, number)
                 Call.STATE_ACTIVE,
                 Call.STATE_DIALING,
-                Call.STATE_CONNECTING -> CallUiState.Active(call, displayName, number)
-                else -> CallUiState.Idle
+                Call.STATE_CONNECTING -> CallState.Active(call, displayName, number)
+                else -> CallState.Idle
             }
         )
     }

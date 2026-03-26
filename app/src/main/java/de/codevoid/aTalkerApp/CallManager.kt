@@ -5,58 +5,32 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-sealed class CallUiState {
-    /** No call in progress. OverlayService shuts down when it sees this. */
-    object Idle : CallUiState()
-    /** User explicitly dismissed the overlay — stays hidden until next action */
-    object Hidden : CallUiState()
-    /** Contacts list is visible */
-    object ShowingContacts : CallUiState()
-    /** Dialpad is visible */
-    object ShowingDialpad : CallUiState()
-    /** Incoming call ringing */
+sealed class CallState {
+    object Idle : CallState()
     data class Incoming(
         val call: Call,
         val displayName: String,
         val number: String,
-    ) : CallUiState()
-    /** Call connected and in progress */
+    ) : CallState()
     data class Active(
         val call: Call,
         val displayName: String,
         val number: String,
-    ) : CallUiState()
+    ) : CallState()
 }
 
+enum class OverlayNav { Hidden, Contacts, Dialpad }
+
 object CallManager {
-    private val _state = MutableStateFlow<CallUiState>(CallUiState.Idle)
-    val state: StateFlow<CallUiState> = _state.asStateFlow()
+    private val _call = MutableStateFlow<CallState>(CallState.Idle)
+    val call: StateFlow<CallState> = _call.asStateFlow()
 
-    fun update(state: CallUiState) {
-        _state.value = state
-    }
+    private val _nav = MutableStateFlow(OverlayNav.Hidden)
+    val nav: StateFlow<OverlayNav> = _nav.asStateFlow()
 
-    /** Switch to contacts list. No-op if a call is active. */
-    fun showContacts() {
-        val s = _state.value
-        if (s !is CallUiState.Incoming && s !is CallUiState.Active) {
-            _state.value = CallUiState.ShowingContacts
-        }
-    }
+    fun updateCall(state: CallState) { _call.value = state }
 
-    /** Switch to dialpad. No-op if a call is active. */
-    fun showDialpad() {
-        val s = _state.value
-        if (s !is CallUiState.Incoming && s !is CallUiState.Active) {
-            _state.value = CallUiState.ShowingDialpad
-        }
-    }
-
-    /** Hide the overlay until the user or a call re-opens it. No-op during a call. */
-    fun hide() {
-        val s = _state.value
-        if (s is CallUiState.ShowingContacts || s is CallUiState.ShowingDialpad) {
-            _state.value = CallUiState.Hidden
-        }
-    }
+    fun showContacts() { _nav.value = OverlayNav.Contacts }
+    fun showDialpad()  { _nav.value = OverlayNav.Dialpad }
+    fun hide()         { _nav.value = OverlayNav.Hidden }
 }
