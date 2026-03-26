@@ -1,5 +1,9 @@
 package de.codevoid.aTalkerApp.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -19,44 +23,56 @@ import de.codevoid.aTalkerApp.CallUiState
 import de.codevoid.aTalkerApp.data.Contact
 import de.codevoid.aTalkerApp.data.ContactsRepository
 
-/**
- * Top-level Composable hosted in the overlay window.
- * All screens are framed at 90% width/height with a transparent backdrop.
- * Tapping the backdrop (or pressing Back/Escape) hides the overlay for
- * ShowingContacts and ShowingDialpad states.
- */
 @Composable
 fun OverlayRoot(onDial: (String) -> Unit) {
     val state by CallManager.state.collectAsState()
 
-    OverlayTheme {
-        when (val s = state) {
-            is CallUiState.Idle, is CallUiState.Hidden -> Unit
+    // Cache the last call state so the card can still render during the exit animation
+    // (state may already be Idle/ShowingContacts by the time the slide-out completes).
+    var cachedCall by remember { mutableStateOf<CallUiState?>(null) }
+    LaunchedEffect(state) {
+        if (state is CallUiState.Incoming || state is CallUiState.Active) cachedCall = state
+    }
+    val isCallActive = state is CallUiState.Incoming || state is CallUiState.Active
 
-            is CallUiState.ShowingContacts -> OverlayFrame(dismissible = true) {
-                ContactsScreenConnected(onDial)
+    OverlayTheme {
+        Box(modifier = Modifier.fillMaxSize()) {
+
+            // ── Contacts / Dialpad ──────────────────────────────────────────
+            when (val s = state) {
+                is CallUiState.ShowingContacts -> OverlayFrame(dismissible = true) {
+                    ContactsScreenConnected(onDial)
+                }
+                is CallUiState.ShowingDialpad -> OverlayFrame(dismissible = true) {
+                    DialpadScreen(
+                        onDial = onDial,
+                        onContacts = { CallManager.showContacts() },
+                        onClose = { CallManager.hide() },
+                    )
+                }
+                else -> Unit
             }
-            is CallUiState.ShowingDialpad -> OverlayFrame(dismissible = true) {
-                DialpadScreen(
-                    onDial = onDial,
-                    onContacts = { CallManager.showContacts() },
-                    onClose = { CallManager.hide() },
-                )
-            }
-            is CallUiState.Incoming -> OverlayFrame(dismissible = false) {
-                IncomingCallScreen(
-                    displayName = s.displayName,
-                    number = s.number,
-                    onAccept = { s.call.answer(0) },
-                    onReject = { s.call.reject(false, null) },
-                )
-            }
-            is CallUiState.Active -> OverlayFrame(dismissible = false) {
-                ActiveCallScreen(
-                    displayName = s.displayName,
-                    number = s.number,
-                    onHangUp = { s.call.disconnect() },
-                )
+
+            // ── Call card (slides in from left, out to right) ───────────────
+            AnimatedVisibility(
+                visible = isCallActive,
+                enter = slideInHorizontally(animationSpec = tween(380)) { -it },
+                exit  = slideOutHorizontally(animationSpec = tween(320)) {  it },
+            ) {
+                when (val cs = cachedCall) {
+                    is CallUiState.Incoming -> IncomingCallCard(
+                        displayName = cs.displayName,
+                        number = cs.number,
+                        onAccept  = { cs.call.answer(0) },
+                        onDecline = { cs.call.reject(false, null) },
+                    )
+                    is CallUiState.Active -> ActiveCallCard(
+                        displayName = cs.displayName,
+                        number = cs.number,
+                        onHangUp = { cs.call.disconnect() },
+                    )
+                    else -> Unit
+                }
             }
         }
     }
@@ -64,8 +80,7 @@ fun OverlayRoot(onDial: (String) -> Unit) {
 
 /**
  * Wraps content in a 90 % × 90 % centered box.
- * When [dismissible] is true a transparent full-screen backdrop sits behind
- * the content; tapping it calls [CallManager.hide].
+ * When [dismissible] is true, tapping the backdrop calls [CallManager.hide].
  */
 @Composable
 private fun OverlayFrame(
@@ -83,7 +98,6 @@ private fun OverlayFrame(
                     ) { CallManager.hide() },
             )
         }
-        // 90 % content area — consumes clicks so they don't reach the backdrop
         Box(
             modifier = Modifier
                 .fillMaxSize(0.9f)
