@@ -36,8 +36,10 @@ fun HistoryScreen(
 
     LaunchedEffect(Unit) { focusRequester.requestFocus() }
     LaunchedEffect(selectedIdx) {
-        if (entries.isNotEmpty())
-            listState.animateScrollToItem(selectedIdx.coerceAtMost(entries.lastIndex))
+        if (entries.isEmpty()) return@LaunchedEffect
+        val idx = selectedIdx.coerceAtMost(entries.lastIndex)
+        val visible = listState.layoutInfo.visibleItemsInfo
+        if (visible.none { it.index == idx }) listState.scrollToItem(idx)
     }
 
     Box(
@@ -61,7 +63,7 @@ fun HistoryScreen(
             }
         } else {
             LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
-                itemsIndexed(entries) { index, entry ->
+                itemsIndexed(entries, key = { _, e -> e.date }) { index, entry ->
                     HistoryRow(
                         entry   = entry,
                         focused = index == selectedIdx,
@@ -91,12 +93,12 @@ private fun HistoryRow(entry: CallLogEntry, focused: Boolean, onClick: () -> Uni
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 10.dp, vertical = 3.dp)
-            .clip(rowShape)
-            .background(if (focused) RowSelected else Color.Transparent)
-            .border(
-                1.dp,
-                if (focused) FocusHighlight.copy(alpha = 0.5f) else Color.Transparent,
-                rowShape,
+            .then(
+                if (focused) Modifier
+                    .clip(rowShape)
+                    .background(RowSelected)
+                    .border(1.dp, FocusHighlight.copy(alpha = 0.5f), rowShape)
+                else Modifier
             )
             .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically,

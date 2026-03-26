@@ -70,8 +70,12 @@ fun ContactsScreen(
 
     LaunchedEffect(Unit) { focusRequester.requestFocus() }
     LaunchedEffect(selectedIndex) {
-        if (filtered.isNotEmpty())
-            listState.animateScrollToItem(selectedIndex.coerceAtMost(filtered.lastIndex))
+        if (filtered.isEmpty()) return@LaunchedEffect
+        val idx = selectedIndex.coerceAtMost(filtered.lastIndex)
+        // Only scroll if the item is not already visible; snap instantly to avoid
+        // conflicting with ongoing touch-scroll gestures.
+        val visible = listState.layoutInfo.visibleItemsInfo
+        if (visible.none { it.index == idx }) listState.scrollToItem(idx)
     }
 
     Box(
@@ -114,7 +118,7 @@ fun ContactsScreen(
                 )
 
                 LazyColumn(state = listState, modifier = Modifier.weight(1f)) {
-                    itemsIndexed(filtered) { index, contact ->
+                    itemsIndexed(filtered, key = { _, c -> c.id }) { index, contact ->
                         ContactRow(
                             contact    = contact,
                             byLastName = byLastName,
@@ -229,22 +233,22 @@ private fun ContactRow(contact: Contact, byLastName: Boolean, focused: Boolean, 
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 10.dp, vertical = 3.dp)
-            .clip(rowShape)
-            .background(if (focused) RowSelected else Color.Transparent)
-            .border(
-                width = 1.dp,
-                color = if (focused) FocusHighlight.copy(alpha = 0.5f) else Color.Transparent,
-                shape = rowShape,
+            .then(
+                if (focused) Modifier
+                    .clip(rowShape)
+                    .background(RowSelected)
+                    .border(1.dp, FocusHighlight.copy(alpha = 0.5f), rowShape)
+                else Modifier
             )
             .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // Left accent strip — lights up on focus
+        // Left accent strip — lights up on focus; invisible for unfocused rows
         Box(
             Modifier
                 .width(12.dp)
                 .height(52.dp)
-                .background(if (focused) FocusHighlight else Color.Transparent),
+                .then(if (focused) Modifier.background(FocusHighlight) else Modifier),
         )
         Spacer(Modifier.width(12.dp))
         ContactAvatar(name = contact.displayName)
