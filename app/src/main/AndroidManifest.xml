@@ -13,6 +13,7 @@
     <!-- Services -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- Telephony feature declared optional so the app installs on WiFi-only tablets -->
     <uses-feature android:name="android.hardware.telephony" android:required="false" />
@@ -69,7 +70,7 @@
         <service
             android:name=".OverlayService"
             android:exported="false"
-            android:foregroundServiceType="phoneCall" />
+            android:foregroundServiceType="specialUse" />
 
     </application>
 

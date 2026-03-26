@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.net.Uri
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
@@ -30,7 +31,7 @@ class OverlayService : Service() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
-        startForeground(NOTIF_ID, buildNotification())
+        startForeground(NOTIF_ID, buildNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
         overlayWindow = OverlayWindow(this)
         bluetoothHeadset = BluetoothHeadsetManager(this).apply {
             onHeadsetButton = ::handleHeadsetButton
