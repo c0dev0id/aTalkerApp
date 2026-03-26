@@ -115,7 +115,7 @@ fun ContactsScreen(
                     .background(
                         Brush.verticalGradient(listOf(CardSurfaceElevated, OverlayBackground))
                     )
-                    .padding(horizontal = 28.dp, vertical = 18.dp),
+                    .padding(horizontal = 20.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
@@ -174,10 +174,10 @@ private fun FilterColumn(
 ) {
     Column(
         modifier = Modifier
-            .width(72.dp)
+            .width(88.dp)
             .fillMaxHeight()
-            .padding(start = 8.dp, end = 4.dp, top = 6.dp, bottom = 48.dp), // bottom pad clears hint bar
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+            .padding(start = 6.dp, end = 4.dp, top = 4.dp, bottom = 36.dp), // bottom pad clears hint bar
+        verticalArrangement = Arrangement.spacedBy(3.dp),
     ) {
         filterGroups.forEachIndexed { idx, label ->
             FilterButton(
@@ -257,7 +257,7 @@ private fun ContactRow(contact: Contact, focused: Boolean, onClick: () -> Unit) 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 14.dp, vertical = 5.dp)
+            .padding(horizontal = 10.dp, vertical = 3.dp)
             .clip(rowShape)
             .background(if (focused) RowSelected else Color.Transparent)
             .border(
@@ -272,16 +272,16 @@ private fun ContactRow(contact: Contact, focused: Boolean, onClick: () -> Unit) 
         Box(
             Modifier
                 .width(4.dp)
-                .height(72.dp)
+                .height(52.dp)
                 .background(if (focused) FocusHighlight else Color.Transparent),
         )
-        Spacer(Modifier.width(18.dp))
+        Spacer(Modifier.width(12.dp))
         ContactAvatar(name = contact.displayName)
-        Spacer(Modifier.width(16.dp))
+        Spacer(Modifier.width(12.dp))
         Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(vertical = 14.dp),
+                .padding(vertical = 8.dp),
         ) {
             Text(
                 contact.displayName,
@@ -295,7 +295,7 @@ private fun ContactRow(contact: Contact, focused: Boolean, onClick: () -> Unit) 
                 fontSize = TextSizeSmall,
             )
         }
-        Spacer(Modifier.width(18.dp))
+        Spacer(Modifier.width(12.dp))
     }
 }
 
@@ -305,7 +305,7 @@ private fun ContactAvatar(name: String) {
     val initial = name.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
     Box(
         modifier = Modifier
-            .size(52.dp)
+            .size(40.dp)
             .background(color, CircleShape),
         contentAlignment = Alignment.Center,
     ) {

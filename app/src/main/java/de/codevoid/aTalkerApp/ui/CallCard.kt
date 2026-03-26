@@ -148,8 +148,8 @@ private fun CardShell(
     ) {
         Box(
             modifier = Modifier
-                .padding(end = 20.dp, top = 20.dp)
-                .width(370.dp)
+                .padding(end = 14.dp, top = 14.dp)
+                .width(320.dp)
                 .align(Alignment.TopEnd)
                 .shadow(
                     elevation    = 24.dp,
@@ -171,7 +171,7 @@ private fun CardShell(
                 )
                 Column(
                     modifier = Modifier
-                        .padding(start = 20.dp, top = 22.dp, end = 24.dp, bottom = 22.dp),
+                        .padding(start = 16.dp, top = 16.dp, end = 18.dp, bottom = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                     content = content,
                 )
@@ -192,8 +192,8 @@ private fun CardButton(
     val gradient = Brush.verticalGradient(listOf(lerp(color, Color.White, 0.18f), color))
     Box(
         modifier = Modifier
-            .height(64.dp)
-            .width(152.dp)
+            .height(52.dp)
+            .width(130.dp)
             .shadow(
                 elevation    = if (focused) 10.dp else 4.dp,
                 shape        = btnShape,

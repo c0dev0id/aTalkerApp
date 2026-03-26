@@ -93,7 +93,7 @@ fun TabbedOverlay(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(72.dp)
+                .height(48.dp)
                 .background(CardSurfaceElevated),
         ) {
             TABS.forEach { tab ->
@@ -158,7 +158,7 @@ fun TabbedOverlay(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(72.dp)
+                .height(48.dp)
                 .background(CardSurfaceElevated)
                 .border(1.dp, RejectRed.copy(alpha = 0.25f), RoundedCornerShape(0.dp))
                 .clickable(onClick = onClose),

@@ -115,7 +115,7 @@ fun DialpadScreen(onDial: (String) -> Unit, onContacts: () -> Unit, onClose: () 
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             // ── Number display with blinking cursor ───────────────────────────
             val displayText = when {
@@ -124,11 +124,11 @@ fun DialpadScreen(onDial: (String) -> Unit, onContacts: () -> Unit, onClose: () 
             }
             Box(
                 modifier = Modifier
-                    .width(384.dp)
-                    .clip(RoundedCornerShape(14.dp))
+                    .width(360.dp)
+                    .clip(RoundedCornerShape(12.dp))
                     .background(CardSurfaceElevated)
-                    .border(1.dp, FocusHighlight.copy(0.25f), RoundedCornerShape(14.dp))
-                    .padding(horizontal = 24.dp, vertical = 16.dp),
+                    .border(1.dp, FocusHighlight.copy(0.25f), RoundedCornerShape(12.dp))
+                    .padding(horizontal = 20.dp, vertical = 10.dp),
                 contentAlignment = Alignment.CenterStart,
             ) {
                 Text(
@@ -139,11 +139,9 @@ fun DialpadScreen(onDial: (String) -> Unit, onContacts: () -> Unit, onClose: () 
                 )
             }
 
-            Spacer(Modifier.height(4.dp))
-
             // ── Digit rows ────────────────────────────────────────────────────
             dialKeys.forEachIndexed { rowIdx, row ->
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     row.forEachIndexed { colIdx, key ->
                         DialKey(
                             label   = key,
@@ -154,34 +152,32 @@ fun DialpadScreen(onDial: (String) -> Unit, onContacts: () -> Unit, onClose: () 
                 }
             }
 
-            Spacer(Modifier.height(2.dp))
-
             // ── Action row: Contacts | Backspace ─────────────────────────────
             Row(
-                modifier = Modifier.width(384.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.width(360.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 ActionKey(
                     label   = "Contacts",
                     focused = selRow == ACTION_ROW && selCol == 0,
                     onClick = onContacts,
-                    modifier = Modifier.weight(1f).height(68.dp),
+                    modifier = Modifier.weight(1f).height(48.dp),
                 )
                 ActionKey(
                     label   = "⌫",
                     focused = selRow == ACTION_ROW && selCol == 1,
                     onClick = { if (digits.isNotEmpty()) digits = digits.dropLast(1) },
-                    modifier = Modifier.weight(1f).height(68.dp),
+                    modifier = Modifier.weight(1f).height(48.dp),
                 )
             }
 
             // ── Call button: dominant, full width ─────────────────────────────
             val callEnabled = digits.isNotEmpty()
-            val callShape   = RoundedCornerShape(16.dp)
+            val callShape   = RoundedCornerShape(14.dp)
             Box(
                 modifier = Modifier
-                    .width(384.dp)
-                    .height(90.dp)
+                    .width(360.dp)
+                    .height(56.dp)
                     .shadow(
                         elevation    = if (selRow == CALL_ROW) 16.dp else 6.dp,
                         shape        = callShape,
@@ -216,7 +212,7 @@ private fun DialKey(label: String, focused: Boolean, onClick: () -> Unit) {
     val shape = RoundedCornerShape(12.dp)
     Box(
         modifier = Modifier
-            .size(120.dp, 80.dp)
+            .size(112.dp, 48.dp)
             .clip(shape)
             .run { if (focused) background(RowSelected) else background(keyGradient) }
             .border(

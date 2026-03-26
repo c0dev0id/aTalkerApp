@@ -93,7 +93,7 @@ private fun HistoryRow(entry: CallLogEntry, focused: Boolean, onClick: () -> Uni
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 14.dp, vertical = 5.dp)
+            .padding(horizontal = 10.dp, vertical = 3.dp)
             .clip(rowShape)
             .background(if (focused) RowSelected else Color.Transparent)
             .border(
@@ -108,17 +108,17 @@ private fun HistoryRow(entry: CallLogEntry, focused: Boolean, onClick: () -> Uni
         Box(
             Modifier
                 .width(4.dp)
-                .height(72.dp)
+                .height(52.dp)
                 .background(if (focused) accentColor else accentColor.copy(alpha = 0.4f)),
         )
-        Spacer(Modifier.width(14.dp))
+        Spacer(Modifier.width(10.dp))
 
         // Call-type badge
         Box(
             modifier = Modifier
-                .size(44.dp)
-                .background(accentColor.copy(alpha = 0.15f), RoundedCornerShape(10.dp))
-                .border(1.dp, accentColor.copy(alpha = 0.4f), RoundedCornerShape(10.dp)),
+                .size(36.dp)
+                .background(accentColor.copy(alpha = 0.15f), RoundedCornerShape(8.dp))
+                .border(1.dp, accentColor.copy(alpha = 0.4f), RoundedCornerShape(8.dp)),
             contentAlignment = Alignment.Center,
         ) {
             Text(
@@ -129,12 +129,12 @@ private fun HistoryRow(entry: CallLogEntry, focused: Boolean, onClick: () -> Uni
             )
         }
 
-        Spacer(Modifier.width(16.dp))
+        Spacer(Modifier.width(12.dp))
 
         Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(vertical = 14.dp),
+                .padding(vertical = 8.dp),
         ) {
             Text(
                 entry.displayName,
@@ -151,7 +151,7 @@ private fun HistoryRow(entry: CallLogEntry, focused: Boolean, onClick: () -> Uni
             formatCallDate(entry.date),
             color    = TextSecondary,
             fontSize = TextSizeSmall,
-            modifier = Modifier.padding(end = 18.dp),
+            modifier = Modifier.padding(end = 12.dp),
         )
     }
 }

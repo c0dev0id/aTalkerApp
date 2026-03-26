@@ -29,12 +29,12 @@ val TextSecondary = Color(0xFF94A3B8)            // slate-400: subdued but reada
 // ── Rows ─────────────────────────────────────────────────────────────────────
 val RowSelected = Color(0xFF0F1E2F)             // focused contact-row background
 
-// ── Text sizes (large — glanceable at arm's length) ──────────────────────────
-val TextSizeHuge   = 48.sp
-val TextSizeLarge  = 36.sp
-val TextSizeMedium = 28.sp
-val TextSizeSmall  = 22.sp
-val TextSizeTiny   = 14.sp
+// ── Text sizes — tuned for 1280×800 landscape (≈ 853×533 dp at hdpi) ────────
+val TextSizeHuge   = 36.sp
+val TextSizeLarge  = 26.sp
+val TextSizeMedium = 20.sp
+val TextSizeSmall  = 16.sp
+val TextSizeTiny   = 12.sp
 
 private val Colors = darkColorScheme(
     primary      = FocusHighlight,
