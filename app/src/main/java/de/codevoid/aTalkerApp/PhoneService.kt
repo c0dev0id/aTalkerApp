@@ -29,7 +29,7 @@ class PhoneService : InCallService() {
             ?.takeIf { it.isNotBlank() } ?: number
 
         CallManager.update(
-            when (call.state) {
+            when (call.details.state) {
                 Call.STATE_RINGING -> CallUiState.Incoming(call, displayName, number)
                 Call.STATE_ACTIVE,
                 Call.STATE_DIALING,
