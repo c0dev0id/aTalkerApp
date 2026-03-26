@@ -92,8 +92,8 @@ class OverlayService : Service() {
         scope.launch {
             combine(CallManager.call, CallManager.nav) { call, nav -> call to nav }
                 .collectLatest { (call, nav) ->
-                    // Call ended or user dismissed: return focus to the foreground app.
-                    if (call is CallState.Idle || nav == OverlayNav.Hidden) stopSelf()
+                    // Stop only when there is no active call AND the panel is closed.
+                    if (call is CallState.Idle && nav == OverlayNav.Hidden) stopSelf()
                     getSystemService(NotificationManager::class.java).notify(NOTIF_ID, buildNotification())
                 }
         }
