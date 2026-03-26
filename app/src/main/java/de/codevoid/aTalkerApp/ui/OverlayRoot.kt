@@ -1,6 +1,5 @@
 package de.codevoid.aTalkerApp.ui
 
-import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,6 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import de.codevoid.aTalkerApp.CallManager
 import de.codevoid.aTalkerApp.CallUiState
 import de.codevoid.aTalkerApp.data.Contact
@@ -18,13 +18,13 @@ import de.codevoid.aTalkerApp.data.ContactsRepository
  * Observes CallManager.state and renders the appropriate screen.
  */
 @Composable
-fun OverlayRoot(context: Context, onDial: (String) -> Unit) {
+fun OverlayRoot(onDial: (String) -> Unit) {
     val state by CallManager.state.collectAsState()
 
     OverlayTheme {
         when (val s = state) {
             is CallUiState.Idle -> Unit
-            is CallUiState.ShowingContacts -> ContactsScreenConnected(context, onDial)
+            is CallUiState.ShowingContacts -> ContactsScreenConnected(onDial)
             is CallUiState.Incoming -> IncomingCallScreen(
                 displayName = s.displayName,
                 number = s.number,
@@ -41,7 +41,8 @@ fun OverlayRoot(context: Context, onDial: (String) -> Unit) {
 }
 
 @Composable
-private fun ContactsScreenConnected(context: Context, onDial: (String) -> Unit) {
+private fun ContactsScreenConnected(onDial: (String) -> Unit) {
+    val context = LocalContext.current
     var contacts by remember { mutableStateOf(emptyList<Contact>()) }
     var loading by remember { mutableStateOf(true) }
 

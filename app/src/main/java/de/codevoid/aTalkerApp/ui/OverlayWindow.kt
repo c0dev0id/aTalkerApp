@@ -18,6 +18,7 @@ class OverlayWindow(private val context: Context) {
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private val lifecycleOwner = OverlayLifecycleOwner()
     private var composeView: ComposeView? = null
+    val isShown: Boolean get() = composeView != null
 
     private val layoutParams = WindowManager.LayoutParams(
         WindowManager.LayoutParams.MATCH_PARENT,
@@ -41,7 +42,7 @@ class OverlayWindow(private val context: Context) {
             setViewTreeLifecycleOwner(lifecycleOwner)
             setViewTreeViewModelStoreOwner(lifecycleOwner)
             setViewTreeSavedStateRegistryOwner(lifecycleOwner)
-            setContent { OverlayRoot(context, onDial) }
+            setContent { OverlayRoot(onDial) }
         }
 
         windowManager.addView(composeView, layoutParams)

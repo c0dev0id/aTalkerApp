@@ -31,6 +31,8 @@ class PermissionsActivity : ComponentActivity() {
         Manifest.permission.POST_NOTIFICATIONS,
     )
 
+    private var resumeTick by mutableIntStateOf(0)
+
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { tryStartService() }
@@ -47,12 +49,15 @@ class PermissionsActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         tryStartService()
-        // Force recompose so status indicators update after returning from Settings
-        setContent { Screen() }
+        resumeTick++
     }
 
     @Composable
     private fun Screen() {
+        // Read resumeTick so this composable re-runs whenever onResume increments it.
+        // This re-evaluates the permission/role checks without rebuilding the full composition.
+        @Suppress("UNUSED_EXPRESSION") resumeTick
+
         OverlayTheme {
             Surface(modifier = Modifier.fillMaxSize()) {
                 SetupScreen(

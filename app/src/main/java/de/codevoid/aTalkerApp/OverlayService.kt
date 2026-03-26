@@ -26,7 +26,6 @@ class OverlayService : Service() {
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private lateinit var overlayWindow: OverlayWindow
     private lateinit var bluetoothHeadset: BluetoothHeadsetManager
-    private var overlayShown = false
 
     override fun onCreate() {
         super.onCreate()
@@ -79,7 +78,7 @@ class OverlayService : Service() {
     }
 
     private fun showOverlay() {
-        if (!overlayShown) {
+        if (!overlayWindow.isShown) {
             overlayWindow.show { number ->
                 val uri = Uri.parse("tel:$number")
                 val intent = Intent(Intent.ACTION_CALL, uri).apply {
@@ -87,14 +86,12 @@ class OverlayService : Service() {
                 }
                 startActivity(intent)
             }
-            overlayShown = true
         }
     }
 
     private fun hideOverlay() {
-        if (overlayShown) {
+        if (overlayWindow.isShown) {
             overlayWindow.dismiss()
-            overlayShown = false
         }
     }
 

@@ -17,7 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
 import de.codevoid.aTalkerApp.data.Contact
-import kotlinx.coroutines.launch
 
 @Composable
 fun ContactsScreen(
@@ -27,14 +26,13 @@ fun ContactsScreen(
 ) {
     var selectedIndex by remember { mutableIntStateOf(0) }
     val listState = rememberLazyListState()
-    val scope = rememberCoroutineScope()
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
     // Scroll to keep selected item visible
     LaunchedEffect(selectedIndex) {
-        scope.launch { listState.animateScrollToItem(selectedIndex) }
+        listState.animateScrollToItem(selectedIndex)
     }
 
     Box(
@@ -46,9 +44,6 @@ fun ContactsScreen(
                 if (event.type != KeyEventType.KeyDown || contacts.isEmpty()) return@onKeyEvent false
                 when (event.key) {
                     Key.DirectionUp, Key.DirectionLeft -> {
-                        // TODO: implement navigation behavior
-                        // Decide: should Up from index 0 wrap to end, or stay at 0?
-                        // Decide: should Left/Right also navigate the list (for single-column use)?
                         selectedIndex = navigateUp(selectedIndex, contacts.size)
                         true
                     }

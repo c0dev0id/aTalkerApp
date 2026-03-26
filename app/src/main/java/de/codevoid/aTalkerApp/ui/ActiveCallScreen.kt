@@ -1,9 +1,7 @@
 package de.codevoid.aTalkerApp.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,8 +26,8 @@ fun ActiveCallScreen(
     var elapsed by remember { mutableLongStateOf(0L) }
     val focusRequester = remember { FocusRequester() }
 
+    LaunchedEffect(Unit) { focusRequester.requestFocus() }
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
         while (true) {
             delay(1_000)
             elapsed++
@@ -62,15 +60,7 @@ fun ActiveCallScreen(
 
             Spacer(Modifier.height(24.dp))
 
-            Box(
-                modifier = Modifier
-                    .size(240.dp, 80.dp)
-                    .background(RejectRed, RoundedCornerShape(16.dp))
-                    .border(4.dp, FocusHighlight, RoundedCornerShape(16.dp)),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text("End Call", color = TextPrimary, fontSize = TextSizeLarge)
-            }
+            CallButton(label = "End Call", color = RejectRed, focused = true, onClick = onHangUp)
 
             Text("CONFIRM / BACK = End Call", color = TextSecondary, fontSize = TextSizeSmall)
         }

@@ -85,7 +85,7 @@ fun IncomingCallScreen(
 }
 
 @Composable
-private fun CallButton(
+internal fun CallButton(
     label: String,
     color: Color,
     focused: Boolean,
