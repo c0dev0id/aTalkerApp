@@ -14,6 +14,8 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Telephony feature declared optional so the app installs on WiFi-only tablets -->
+    <uses-feature android:name="android.hardware.telephony" android:required="false" />
     <!-- Bluetooth -->
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
