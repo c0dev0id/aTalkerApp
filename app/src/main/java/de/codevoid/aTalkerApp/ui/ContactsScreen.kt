@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.font.FontWeight
@@ -107,24 +106,6 @@ fun ContactsScreen(
             },
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-
-            // ── Header ────────────────────────────────────────────────────────
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        Brush.verticalGradient(listOf(CardSurfaceElevated, OverlayBackground))
-                    )
-                    .padding(horizontal = 20.dp, vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    "Contacts",
-                    color = TextPrimary,
-                    fontSize = TextSizeLarge,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
 
             // ── Filter column + contact list ──────────────────────────────────
             Row(modifier = Modifier.weight(1f).fillMaxWidth()) {

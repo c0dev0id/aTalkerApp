@@ -11,12 +11,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
 import android.view.InputDevice
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.font.FontWeight
@@ -24,12 +21,10 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import java.util.concurrent.TimeUnit
 
-private val cardShape = RoundedCornerShape(20.dp)
-private val cardGradient = Brush.verticalGradient(listOf(CardSurfaceElevated, CardSurface))
+private val cardShape = RoundedCornerShape(12.dp)
 
 /**
- * Incoming-call card. Slides in from the left with an amber accent strip
- * that pulses while ringing.
+ * Incoming-call card. Amber accent strip pulses while ringing.
  * D-pad: LEFT = Decline, RIGHT = Accept (default), CONFIRM = focused button, BACK = Decline.
  */
 @Composable
@@ -54,10 +49,10 @@ fun IncomingCallCard(
     )
 
     CardShell(
-        accentColor   = IncomingAmber,
-        pulseAlpha    = pulseAlpha,
+        accentColor    = IncomingAmber,
+        pulseAlpha     = pulseAlpha,
         focusRequester = focusRequester,
-        onKeyEvent    = { event ->
+        onKeyEvent     = { event ->
             if (event.nativeKeyEvent.source == InputDevice.SOURCE_KEYBOARD) return@CardShell false
             if (event.type != KeyEventType.KeyDown) return@CardShell false
             when (event.key) {
@@ -76,18 +71,23 @@ fun IncomingCallCard(
         Text(displayName, color = TextPrimary, fontSize = TextSizeLarge,
             fontWeight = FontWeight.Bold)
         Text(number, color = TextSecondary, fontSize = TextSizeMedium)
-        Spacer(Modifier.height(20.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            CardButton("Decline", RejectRed,   focused = focusedButton == 0, onClick = onDecline)
-            CardButton("Accept",  AcceptGreen, focused = focusedButton == 1, onClick = onAccept)
+        Spacer(Modifier.height(12.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            CardButton("Decline", RejectRed,   focused = focusedButton == 0,
+                modifier = Modifier.weight(1f), onClick = onDecline)
+            CardButton("Accept",  AcceptGreen, focused = focusedButton == 1,
+                modifier = Modifier.weight(1f), onClick = onAccept)
         }
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(4.dp))
         Text("← Decline    Accept →", color = TextSecondary, fontSize = TextSizeSmall)
     }
 }
 
 /**
- * Active-call card. Same position; accent strip turns green.
+ * Active-call card. Accent strip turns green, steady.
  * D-pad: CONFIRM or BACK ends the call.
  */
 @Composable
@@ -103,7 +103,7 @@ fun ActiveCallCard(
 
     CardShell(
         accentColor    = AcceptGreen,
-        pulseAlpha     = 1.0f,              // steady — call is connected
+        pulseAlpha     = 1.0f,
         focusRequester = focusRequester,
         onKeyEvent     = { event ->
             if (event.nativeKeyEvent.source == InputDevice.SOURCE_KEYBOARD) return@CardShell false
@@ -123,9 +123,10 @@ fun ActiveCallCard(
         Text(number, color = TextSecondary, fontSize = TextSizeMedium)
         Text(formatElapsed(elapsed), color = FocusHighlight, fontSize = TextSizeMedium,
             fontWeight = FontWeight.Medium)
-        Spacer(Modifier.height(20.dp))
-        CardButton("End Call", RejectRed, focused = true, onClick = onHangUp)
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(12.dp))
+        CardButton("End Call", RejectRed, focused = true,
+            modifier = Modifier.fillMaxWidth(), onClick = onHangUp)
+        Spacer(Modifier.height(4.dp))
         Text("CONFIRM / BACK = End Call", color = TextSecondary, fontSize = TextSizeSmall)
     }
 }
@@ -146,23 +147,17 @@ private fun CardShell(
             .focusRequester(focusRequester)
             .onKeyEvent(onKeyEvent),
     ) {
+        // Card fills the zone width; top-aligned with a small inset
         Box(
             modifier = Modifier
-                .padding(end = 14.dp, top = 14.dp)
-                .width(320.dp)
-                .align(Alignment.TopEnd)
-                .shadow(
-                    elevation    = 24.dp,
-                    shape        = cardShape,
-                    ambientColor = accentColor.copy(alpha = 0.25f),
-                    spotColor    = accentColor.copy(alpha = 0.40f),
-                )
+                .fillMaxWidth()
+                .padding(top = 8.dp, start = 8.dp, end = 8.dp)
                 .clip(cardShape)
-                .background(cardGradient)
-                .border(1.5.dp, accentColor.copy(alpha = pulseAlpha * 0.55f), cardShape),
+                .background(CardSurface)
+                .border(1.5.dp, accentColor.copy(alpha = pulseAlpha * 0.6f), cardShape),
         ) {
             Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
-                // Left accent strip — color communicates state at a glance
+                // Accent strip — communicates state at a glance, matches history row style
                 Box(
                     Modifier
                         .width(4.dp)
@@ -171,7 +166,7 @@ private fun CardShell(
                 )
                 Column(
                     modifier = Modifier
-                        .padding(start = 16.dp, top = 16.dp, end = 18.dp, bottom = 16.dp),
+                        .padding(start = 12.dp, top = 14.dp, end = 12.dp, bottom = 14.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                     content = content,
                 )
@@ -185,23 +180,15 @@ private fun CardButton(
     label: String,
     color: Color,
     focused: Boolean,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
-    val btnShape = RoundedCornerShape(14.dp)
-    // Subtle top-highlight gradient — implies pressability without skeuomorphism
-    val gradient = Brush.verticalGradient(listOf(lerp(color, Color.White, 0.18f), color))
+    val btnShape = RoundedCornerShape(10.dp)
     Box(
-        modifier = Modifier
-            .height(52.dp)
-            .width(130.dp)
-            .shadow(
-                elevation    = if (focused) 10.dp else 4.dp,
-                shape        = btnShape,
-                spotColor    = color.copy(alpha = 0.55f),
-                ambientColor = color.copy(alpha = 0.25f),
-            )
+        modifier = modifier
+            .height(46.dp)
             .clip(btnShape)
-            .background(gradient)
+            .background(color.copy(alpha = if (focused) 1f else 0.7f))
             .border(2.dp, if (focused) FocusHighlight else Color.Transparent, btnShape)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,

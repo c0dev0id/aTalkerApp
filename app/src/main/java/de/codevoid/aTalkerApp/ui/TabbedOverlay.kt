@@ -2,7 +2,6 @@ package de.codevoid.aTalkerApp.ui
 
 import android.view.InputDevice
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -95,6 +94,7 @@ fun TabbedOverlay(
                 .fillMaxWidth()
                 .height(48.dp)
                 .background(CardSurfaceElevated),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             TABS.forEach { tab ->
                 val isSelected = tab == selectedTab
@@ -122,6 +122,16 @@ fun TabbedOverlay(
                             .background(FocusHighlight, RoundedCornerShape(2.dp))
                     )
                 }
+            }
+            // ✕ close — gives touch users a visible dismiss target
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .aspectRatio(1f)
+                    .clickable(onClick = onClose),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text("✕", color = RejectRed, fontSize = TextSizeMedium, fontWeight = FontWeight.Bold)
             }
         }
 
@@ -153,23 +163,6 @@ fun TabbedOverlay(
             }
         }
 
-        // ── Dismiss bar ───────────────────────────────────────────────────────
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp)
-                .background(CardSurfaceElevated)
-                .border(1.dp, RejectRed.copy(alpha = 0.25f), RoundedCornerShape(0.dp))
-                .clickable(onClick = onClose),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                "Dismiss",
-                color      = RejectRed,
-                fontSize   = TextSizeMedium,
-                fontWeight = FontWeight.Bold,
-            )
-        }
     }
 }
 
