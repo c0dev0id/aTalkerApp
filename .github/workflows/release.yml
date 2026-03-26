@@ -82,7 +82,7 @@ jobs:
             echo "::error::No APK found at expected paths."
             exit 1
           fi
-          DEST="app/build/outputs/apk/release/__TEMPLATE_NAME__-${VERSION}.apk"
+          DEST="app/build/outputs/apk/release/aTalkerApp-${VERSION}.apk"
           mv "$APK_SOURCE" "$DEST"
           echo "apk_path=$DEST" >> "$GITHUB_OUTPUT"
 
@@ -92,12 +92,12 @@ jobs:
           git tag "$VERSION"
           git push origin "$VERSION"
 
-      - name: Create GitHub release draft
+      - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.version }}
           name: ${{ steps.version.outputs.version }}
-          draft: true
+          draft: false
           generate_release_notes: true
           files: |
             ${{ steps.rename.outputs.apk_path }}
