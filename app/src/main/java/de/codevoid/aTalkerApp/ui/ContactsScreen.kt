@@ -116,7 +116,6 @@ fun ContactsScreen(
                         Brush.verticalGradient(listOf(CardSurfaceElevated, OverlayBackground))
                     )
                     .padding(horizontal = 28.dp, vertical = 18.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
@@ -125,19 +124,6 @@ fun ContactsScreen(
                     fontSize = TextSizeLarge,
                     fontWeight = FontWeight.Bold,
                 )
-                Box(
-                    modifier = Modifier
-                        .border(1.5.dp, FocusHighlight.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
-                        .clickable(onClick = onDialpad)
-                        .padding(horizontal = 20.dp, vertical = 10.dp),
-                ) {
-                    Text(
-                        "Dialpad",
-                        color = FocusHighlight,
-                        fontSize = TextSizeSmall,
-                        fontWeight = FontWeight.Medium,
-                    )
-                }
             }
 
             // ── Filter column + contact list ──────────────────────────────────
