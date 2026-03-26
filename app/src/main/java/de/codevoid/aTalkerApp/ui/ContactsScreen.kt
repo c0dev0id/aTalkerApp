@@ -25,14 +25,15 @@ import kotlin.math.abs
 
 // Filter groups. "YZ*" catches Y, Z, and anything not covered by the others
 // (non-letters, empty names, numeric first chars, special characters).
-private val filterGroups = listOf("ABC", "DEF", "GHI", "JKL", "MNO", "PQR", "STU", "VWX", "YZ*")
+private val filterGroups  = listOf("ABC", "DEF", "GHI", "JKL", "MNO", "PQR", "STU", "VWX", "YZ*")
+private val whitespaceRegex = "\\s+".toRegex()
 
 // Letters explicitly covered by groups 0–7 (A through X). Anything outside
 // this set — including Y and Z — falls into the last "YZ*" group.
 private val coveredLetters = ('A'..'X').toHashSet()
 
 private fun nameForFilter(contact: Contact, byLastName: Boolean): String {
-    val words = contact.displayName.trim().split("\\s+".toRegex())
+    val words = contact.displayName.trim().split(whitespaceRegex)
     return if (byLastName) words.lastOrNull() ?: "" else words.firstOrNull() ?: ""
 }
 
@@ -220,7 +221,7 @@ private fun FilterButton(
 
 private fun displayName(contact: Contact, byLastName: Boolean): String {
     if (!byLastName) return contact.displayName
-    val words = contact.displayName.trim().split("\\s+".toRegex())
+    val words = contact.displayName.trim().split(whitespaceRegex)
     if (words.size < 2) return contact.displayName
     return "${words.last()}, ${words.dropLast(1).joinToString(" ")}"
 }

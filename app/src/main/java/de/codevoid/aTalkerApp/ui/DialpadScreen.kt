@@ -27,16 +27,13 @@ private val dialKeys = listOf(
     listOf("7", "8", "9"),
     listOf("*", "0", "#"),
 )
-private const val ACTION_ROW = 4   // Contacts | Backspace
+private const val ACTION_ROW = 4   // Backspace
 private const val CALL_ROW   = 5   // Call (single dominant button)
 
 // Subtle blue-dark key gradient — gives keys physical presence without loud color
 private val keyGradient = Brush.verticalGradient(listOf(Color(0xFF1C2E42), Color(0xFF0D1825)))
-// Active call gradient (enabled)
-private fun callGradient(enabled: Boolean) = if (enabled)
-    Brush.verticalGradient(listOf(lerp(AcceptGreen, Color.White, 0.15f), AcceptGreen))
-else
-    Brush.verticalGradient(listOf(Color(0xFF1A3528), Color(0xFF0D1F19)))
+private val callGradientEnabled  = Brush.verticalGradient(listOf(lerp(AcceptGreen, Color.White, 0.15f), AcceptGreen))
+private val callGradientDisabled = Brush.verticalGradient(listOf(Color(0xFF1A3528), Color(0xFF0D1F19)))
 
 /**
  * Full-screen dialpad.
@@ -163,7 +160,7 @@ fun DialpadScreen(onDial: (String) -> Unit, onClose: () -> Unit) {
                         ambientColor = AcceptGreen.copy(if (callEnabled) 0.2f else 0.05f),
                     )
                     .clip(callShape)
-                    .background(callGradient(callEnabled))
+                    .background(if (callEnabled) callGradientEnabled else callGradientDisabled)
                     .border(
                         2.dp,
                         if (selRow == CALL_ROW) FocusHighlight else Color.Transparent,
@@ -221,7 +218,6 @@ private fun ActionKey(
     Box(
         modifier = modifier
             .clip(shape)
-            .background(Color.Transparent)
             .border(
                 width = 1.5.dp,
                 color = if (focused) FocusHighlight else FocusHighlight.copy(alpha = 0.25f),

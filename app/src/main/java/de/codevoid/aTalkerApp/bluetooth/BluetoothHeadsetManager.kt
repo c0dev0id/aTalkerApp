@@ -37,10 +37,6 @@ class BluetoothHeadsetManager(context: Context) {
         session.isActive = true
     }
 
-    fun deactivate() {
-        session.isActive = false
-    }
-
     fun release() {
         session.release()
     }

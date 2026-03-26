@@ -19,7 +19,10 @@ class PhoneService : InCallService() {
 
     override fun onCallRemoved(call: Call) {
         call.unregisterCallback(callCallback)
-        CallManager.updateCall(CallState.Idle)
+        // If another call is still active (e.g. call-waiting), show its state instead of going Idle.
+        val remaining = calls.firstOrNull { it != call }
+        if (remaining != null) updateState(remaining)
+        else CallManager.updateCall(CallState.Idle)
     }
 
     private fun updateState(call: Call) {

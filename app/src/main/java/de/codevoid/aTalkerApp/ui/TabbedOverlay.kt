@@ -21,8 +21,6 @@ import de.codevoid.aTalkerApp.data.CallLogEntry
 import de.codevoid.aTalkerApp.data.CallLogRepository
 import de.codevoid.aTalkerApp.data.Contact
 import de.codevoid.aTalkerApp.data.ContactsRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 enum class OverlayTab(val label: String) {
     History("History"),
@@ -46,6 +44,7 @@ fun TabbedOverlay(
     onClose: () -> Unit,
 ) {
     val context = LocalContext.current
+    val onCloseRef = rememberUpdatedState(onClose)
 
     var selectedTab by remember { mutableStateOf(initialTab) }
 
@@ -55,9 +54,9 @@ fun TabbedOverlay(
     var history        by remember { mutableStateOf(emptyList<CallLogEntry>()) }
 
     LaunchedEffect(Unit) {
-        contacts      = withContext(Dispatchers.IO) { ContactsRepository.load(context) }
+        contacts      = ContactsRepository.load(context)
         contactsReady = true
-        history       = withContext(Dispatchers.IO) { CallLogRepository.load(context) }
+        history       = CallLogRepository.load(context)
     }
 
     Column(
@@ -73,13 +72,13 @@ fun TabbedOverlay(
                 }
             }
             // Right-click anywhere → close (mouse secondary button = Escape)
-            .pointerInput(onClose) {
+            .pointerInput(Unit) {
                 awaitPointerEventScope {
                     while (true) {
                         val event = awaitPointerEvent(PointerEventPass.Initial)
                         if (event.type == PointerEventType.Press &&
                             event.buttons.isSecondaryPressed) {
-                            onClose()
+                            onCloseRef.value()
                         }
                     }
                 }

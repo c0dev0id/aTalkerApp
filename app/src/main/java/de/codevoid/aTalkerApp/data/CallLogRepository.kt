@@ -2,12 +2,14 @@ package de.codevoid.aTalkerApp.data
 
 import android.content.Context
 import android.provider.CallLog
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 object CallLogRepository {
 
     private const val LIMIT = 100
 
-    fun load(context: Context): List<CallLogEntry> {
+    suspend fun load(context: Context): List<CallLogEntry> = withContext(Dispatchers.IO) {
         val entries = mutableListOf<CallLogEntry>()
         context.contentResolver.query(
             CallLog.Calls.CONTENT_URI,
@@ -28,6 +30,6 @@ object CallLogRepository {
                 entries.add(CallLogEntry(name ?: number, number, type, date))
             }
         }
-        return entries
+        entries
     }
 }
