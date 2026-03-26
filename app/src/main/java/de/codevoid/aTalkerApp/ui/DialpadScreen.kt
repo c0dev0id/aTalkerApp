@@ -29,7 +29,7 @@ private const val ACTION_ROW = 4   // row index for Contacts / Backspace / Call
  * Touch: all keys are also tappable.
  */
 @Composable
-fun DialpadScreen(onDial: (String) -> Unit, onContacts: () -> Unit) {
+fun DialpadScreen(onDial: (String) -> Unit, onContacts: () -> Unit, onClose: () -> Unit) {
     var digits by remember { mutableStateOf("") }
     var selRow by remember { mutableIntStateOf(3) }   // default focus: "0" key
     var selCol by remember { mutableIntStateOf(1) }
@@ -58,7 +58,7 @@ fun DialpadScreen(onDial: (String) -> Unit, onContacts: () -> Unit) {
                         )
                         true
                     }
-                    Key.Back, Key.Escape -> { onContacts(); true }
+                    Key.Back, Key.Escape -> { onClose(); true }
                     else -> false
                 }
             },

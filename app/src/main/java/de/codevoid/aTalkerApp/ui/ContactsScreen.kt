@@ -24,6 +24,7 @@ fun ContactsScreen(
     contacts: List<Contact>,
     onCall: (Contact) -> Unit,
     onDialpad: () -> Unit,
+    onClose: () -> Unit,
 ) {
     var selectedIndex by remember { mutableIntStateOf(0) }
     val listState = rememberLazyListState()
@@ -56,7 +57,7 @@ fun ContactsScreen(
                     Key.Enter, Key.NumPadEnter, Key.DirectionCenter -> {
                         onCall(contacts[selectedIndex]); true
                     }
-                    Key.Back, Key.Escape -> { onDialpad(); true }
+                    Key.Back, Key.Escape -> { onClose(); true }
                     else -> false
                 }
             },
@@ -94,7 +95,7 @@ fun ContactsScreen(
         }
 
         Text(
-            "↑↓ Navigate   CONFIRM Call   ← Dialpad",
+            "↑↓ Navigate   CONFIRM Call   ← Dialpad   BACK Close",
             color = TextSecondary,
             fontSize = TextSizeSmall,
             modifier = Modifier

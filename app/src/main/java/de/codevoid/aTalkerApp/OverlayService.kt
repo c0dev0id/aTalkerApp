@@ -76,7 +76,8 @@ class OverlayService : Service() {
     private fun observeCallState() {
         scope.launch {
             CallManager.state.collectLatest { state ->
-                // When a call ends (Idle), return to the contacts list automatically.
+                // When a call ends (Idle), return to the contacts list.
+                // Hidden means the user explicitly closed — leave it alone.
                 if (state is CallUiState.Idle) CallManager.showContacts()
 
                 val nm = getSystemService(NotificationManager::class.java)

@@ -6,8 +6,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 sealed class CallUiState {
-    /** No active call — transient state; OverlayService auto-transitions to ShowingContacts */
+    /** Call ended — OverlayService auto-transitions to ShowingContacts */
     object Idle : CallUiState()
+    /** User explicitly dismissed the overlay — stays hidden until next action */
+    object Hidden : CallUiState()
     /** Contacts list is visible */
     object ShowingContacts : CallUiState()
     /** Dialpad is visible */
@@ -47,6 +49,14 @@ object CallManager {
         val s = _state.value
         if (s !is CallUiState.Incoming && s !is CallUiState.Active) {
             _state.value = CallUiState.ShowingDialpad
+        }
+    }
+
+    /** Hide the overlay until the user or a call re-opens it. No-op during a call. */
+    fun hide() {
+        val s = _state.value
+        if (s is CallUiState.ShowingContacts || s is CallUiState.ShowingDialpad) {
+            _state.value = CallUiState.Hidden
         }
     }
 }
