@@ -5,7 +5,6 @@ import android.app.role.RoleManager
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
@@ -24,15 +23,13 @@ import de.codevoid.aTalkerApp.ui.TextSizeSmall
 
 class PermissionsActivity : ComponentActivity() {
 
-    private val corePermissions = buildList {
-        add(Manifest.permission.READ_CONTACTS)
-        add(Manifest.permission.READ_PHONE_STATE)
-        add(Manifest.permission.CALL_PHONE)
-        add(Manifest.permission.ANSWER_PHONE_CALLS)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            add(Manifest.permission.POST_NOTIFICATIONS)
-        }
-    }.toTypedArray()
+    private val corePermissions = arrayOf(
+        Manifest.permission.READ_CONTACTS,
+        Manifest.permission.READ_PHONE_STATE,
+        Manifest.permission.CALL_PHONE,
+        Manifest.permission.ANSWER_PHONE_CALLS,
+        Manifest.permission.POST_NOTIFICATIONS,
+    )
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
