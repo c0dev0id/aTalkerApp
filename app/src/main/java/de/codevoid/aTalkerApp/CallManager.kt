@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 sealed class CallUiState {
-    /** Call ended — OverlayService auto-transitions to ShowingContacts */
+    /** No call in progress. OverlayService shuts down when it sees this. */
     object Idle : CallUiState()
     /** User explicitly dismissed the overlay — stays hidden until next action */
     object Hidden : CallUiState()
