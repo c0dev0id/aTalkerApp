@@ -31,12 +31,22 @@ class OverlayService : Service() {
         super.onCreate()
         createNotificationChannel()
         startForeground(NOTIF_ID, buildNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+
         overlayWindow = OverlayWindow(this)
+        overlayWindow.show { number ->
+            val uri = Uri.parse("tel:$number")
+            startActivity(Intent(Intent.ACTION_CALL, uri).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            })
+        }
+
         bluetoothHeadset = BluetoothHeadsetManager(this).apply {
             onHeadsetButton = ::handleHeadsetButton
             activate()
         }
+
         observeCallState()
+        CallManager.showContacts()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -66,32 +76,12 @@ class OverlayService : Service() {
     private fun observeCallState() {
         scope.launch {
             CallManager.state.collectLatest { state ->
-                when (state) {
-                    is CallUiState.Idle -> hideOverlay()
-                    else -> showOverlay()
-                }
-                // Refresh notification to reflect contacts-toggle availability
+                // When a call ends (Idle), return to the contacts list automatically.
+                if (state is CallUiState.Idle) CallManager.showContacts()
+
                 val nm = getSystemService(NotificationManager::class.java)
                 nm.notify(NOTIF_ID, buildNotification())
             }
-        }
-    }
-
-    private fun showOverlay() {
-        if (!overlayWindow.isShown) {
-            overlayWindow.show { number ->
-                val uri = Uri.parse("tel:$number")
-                val intent = Intent(Intent.ACTION_CALL, uri).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-                startActivity(intent)
-            }
-        }
-    }
-
-    private fun hideOverlay() {
-        if (overlayWindow.isShown) {
-            overlayWindow.dismiss()
         }
     }
 

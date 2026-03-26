@@ -2,6 +2,7 @@ package de.codevoid.aTalkerApp.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -22,7 +23,7 @@ import de.codevoid.aTalkerApp.data.Contact
 fun ContactsScreen(
     contacts: List<Contact>,
     onCall: (Contact) -> Unit,
-    onDismiss: () -> Unit,
+    onDialpad: () -> Unit,
 ) {
     var selectedIndex by remember { mutableIntStateOf(0) }
     val listState = rememberLazyListState()
@@ -43,7 +44,7 @@ fun ContactsScreen(
             .onKeyEvent { event ->
                 if (event.type != KeyEventType.KeyDown || contacts.isEmpty()) return@onKeyEvent false
                 when (event.key) {
-                    Key.DirectionUp, Key.DirectionLeft -> {
+                    Key.DirectionUp -> {
                         selectedIndex = navigateUp(selectedIndex, contacts.size)
                         true
                     }
@@ -51,21 +52,35 @@ fun ContactsScreen(
                         selectedIndex = navigateDown(selectedIndex, contacts.size)
                         true
                     }
+                    Key.DirectionLeft -> { onDialpad(); true }
                     Key.Enter, Key.NumPadEnter, Key.DirectionCenter -> {
                         onCall(contacts[selectedIndex]); true
                     }
-                    Key.Back, Key.Escape -> { onDismiss(); true }
+                    Key.Back, Key.Escape -> { onDialpad(); true }
                     else -> false
                 }
             },
     ) {
         Column {
-            Text(
-                "Contacts",
-                color = TextPrimary,
-                fontSize = TextSizeLarge,
-                modifier = Modifier.padding(24.dp),
-            )
+            // Header row: title + dialpad toggle
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Contacts", color = TextPrimary, fontSize = TextSizeLarge)
+                Box(
+                    modifier = Modifier
+                        .background(Color(0xFF1C2A3A), RoundedCornerShape(12.dp))
+                        .border(2.dp, FocusHighlight, RoundedCornerShape(12.dp))
+                        .clickable(onClick = onDialpad)
+                        .padding(horizontal = 20.dp, vertical = 10.dp),
+                ) {
+                    Text("Dialpad", color = FocusHighlight, fontSize = TextSizeSmall)
+                }
+            }
 
             LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
                 itemsIndexed(contacts) { index, contact ->
@@ -79,7 +94,7 @@ fun ContactsScreen(
         }
 
         Text(
-            "↑↓ Navigate   CONFIRM Call   BACK Close",
+            "↑↓ Navigate   CONFIRM Call   ← Dialpad",
             color = TextSecondary,
             fontSize = TextSizeSmall,
             modifier = Modifier
@@ -100,6 +115,7 @@ private fun ContactRow(contact: Contact, focused: Boolean, onClick: () -> Unit) 
             .padding(horizontal = 16.dp, vertical = 6.dp)
             .background(bg, RoundedCornerShape(12.dp))
             .border(3.dp, border, RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
             .padding(horizontal = 24.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -118,8 +134,7 @@ private fun ContactRow(contact: Contact, focused: Boolean, onClick: () -> Unit) 
 
 /**
  * Move selection up by one with wrap-around.
- * Pressing UP at index 0 jumps to the last contact — useful for quickly
- * reaching the bottom of a short favorites list without scrolling all the way down.
+ * Pressing UP at index 0 jumps to the last contact.
  */
 fun navigateUp(current: Int, size: Int): Int =
     (current - 1 + size) % size

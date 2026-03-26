@@ -2,6 +2,7 @@ package de.codevoid.aTalkerApp.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -96,7 +97,8 @@ internal fun CallButton(
         modifier = Modifier
             .size(160.dp, 80.dp)
             .background(color, RoundedCornerShape(16.dp))
-            .border(4.dp, borderColor, RoundedCornerShape(16.dp)),
+            .border(4.dp, borderColor, RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         Text(label, color = Color.White, fontSize = TextSizeLarge)

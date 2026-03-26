@@ -25,6 +25,10 @@ fun OverlayRoot(onDial: (String) -> Unit) {
         when (val s = state) {
             is CallUiState.Idle -> Unit
             is CallUiState.ShowingContacts -> ContactsScreenConnected(onDial)
+            is CallUiState.ShowingDialpad -> DialpadScreen(
+                onDial = onDial,
+                onContacts = { CallManager.showContacts() },
+            )
             is CallUiState.Incoming -> IncomingCallScreen(
                 displayName = s.displayName,
                 number = s.number,
@@ -56,11 +60,8 @@ private fun ContactsScreenConnected(onDial: (String) -> Unit) {
     } else {
         ContactsScreen(
             contacts = contacts,
-            onCall = { contact ->
-                CallManager.hideContacts()
-                onDial(contact.phoneNumber)
-            },
-            onDismiss = { CallManager.hideContacts() },
+            onCall = { contact -> onDial(contact.phoneNumber) },
+            onDialpad = { CallManager.showDialpad() },
         )
     }
 }
