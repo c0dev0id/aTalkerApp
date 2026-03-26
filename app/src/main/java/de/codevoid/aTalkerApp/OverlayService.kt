@@ -89,13 +89,17 @@ class OverlayService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     private fun observeCallState() {
+        val nm = getSystemService(NotificationManager::class.java)
         scope.launch {
+            // Stop only when there is no active call AND the panel is closed.
             combine(CallManager.call, CallManager.nav) { call, nav -> call to nav }
                 .collectLatest { (call, nav) ->
-                    // Stop only when there is no active call AND the panel is closed.
                     if (call is CallState.Idle && nav == OverlayNav.Hidden) stopSelf()
-                    getSystemService(NotificationManager::class.java).notify(NOTIF_ID, buildNotification())
                 }
+        }
+        scope.launch {
+            // Rebuild notification only when call state changes — nav changes don't affect it.
+            CallManager.call.collectLatest { nm.notify(NOTIF_ID, buildNotification()) }
         }
     }
 

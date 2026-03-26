@@ -1,7 +1,6 @@
 package de.codevoid.aTalkerApp.ui
 
 import android.provider.CallLog
-import android.view.InputDevice
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -46,9 +45,7 @@ fun HistoryScreen(
             .fillMaxSize()
             .background(OverlayBackground)
             .focusRequester(focusRequester)
-            .onKeyEvent { event ->
-                if (event.nativeKeyEvent.source == InputDevice.SOURCE_KEYBOARD) return@onKeyEvent false
-                if (event.type != KeyEventType.KeyDown) return@onKeyEvent false
+            .onDpadKeyDown { event ->
                 when (event.key) {
                     Key.DirectionUp                       -> { if (entries.isNotEmpty()) selectedIdx = navigateUp(selectedIdx, entries.size); true }
                     Key.DirectionDown, Key.DirectionRight -> { if (entries.isNotEmpty()) selectedIdx = navigateDown(selectedIdx, entries.size); true }

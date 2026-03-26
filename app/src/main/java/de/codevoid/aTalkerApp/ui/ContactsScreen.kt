@@ -1,6 +1,5 @@
 package de.codevoid.aTalkerApp.ui
 
-import android.view.InputDevice
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -80,9 +79,7 @@ fun ContactsScreen(
             .fillMaxSize()
             .background(OverlayBackground)
             .focusRequester(focusRequester)
-            .onKeyEvent { event ->
-                if (event.nativeKeyEvent.source == InputDevice.SOURCE_KEYBOARD) return@onKeyEvent false
-                if (event.type != KeyEventType.KeyDown) return@onKeyEvent false
+            .onDpadKeyDown { event ->
                 if (filterFocused) {
                     when (event.key) {
                         Key.DirectionUp    -> { filterIndex = (filterIndex - 1 + filterGroups.size) % filterGroups.size; true }

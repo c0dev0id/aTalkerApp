@@ -15,19 +15,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import android.view.InputDevice
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import java.util.concurrent.TimeUnit
 
-private val cardShape = RoundedCornerShape(16.dp)
+private val cardShape  = RoundedCornerShape(16.dp)
+private val btnShape   = RoundedCornerShape(10.dp)
 // Subtle top-lit depth gradient — matches aR2Launcher FocusableButton style
 private val depthGradient = Brush.verticalGradient(
-    0f   to Color.White.copy(alpha = 0.11f),
+    0f    to Color.White.copy(alpha = 0.11f),
     0.45f to Color.Transparent,
-    1f   to Color.Black.copy(alpha = 0.08f),
+    1f    to Color.Black.copy(alpha = 0.08f),
 )
 
 /**
@@ -42,8 +42,6 @@ fun IncomingCallCard(
     onDecline: () -> Unit,
 ) {
     var focusedButton by remember { mutableIntStateOf(1) }  // 0 = Decline, 1 = Accept
-    val focusRequester = remember { FocusRequester() }
-    LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
     // Amber pulse — signals urgency while ringing
     val pulse = rememberInfiniteTransition(label = "ring")
@@ -56,12 +54,9 @@ fun IncomingCallCard(
     )
 
     CardShell(
-        accentColor    = IncomingAmber,
-        pulseAlpha     = pulseAlpha,
-        focusRequester = focusRequester,
-        onKeyEvent     = { event ->
-            if (event.nativeKeyEvent.source == InputDevice.SOURCE_KEYBOARD) return@CardShell false
-            if (event.type != KeyEventType.KeyDown) return@CardShell false
+        accentColor = IncomingAmber,
+        pulseAlpha  = pulseAlpha,
+        onKeyEvent  = { event ->
             when (event.key) {
                 Key.DirectionLeft  -> { focusedButton = 0; true }
                 Key.DirectionRight -> { focusedButton = 1; true }
@@ -104,17 +99,12 @@ fun ActiveCallCard(
     onHangUp: () -> Unit,
 ) {
     var elapsed by remember { mutableLongStateOf(0L) }
-    val focusRequester = remember { FocusRequester() }
-    LaunchedEffect(Unit) { focusRequester.requestFocus() }
     LaunchedEffect(Unit) { while (true) { delay(1_000); elapsed++ } }
 
     CardShell(
-        accentColor    = AcceptGreen,
-        pulseAlpha     = 1.0f,
-        focusRequester = focusRequester,
-        onKeyEvent     = { event ->
-            if (event.nativeKeyEvent.source == InputDevice.SOURCE_KEYBOARD) return@CardShell false
-            if (event.type != KeyEventType.KeyDown) return@CardShell false
+        accentColor = AcceptGreen,
+        pulseAlpha  = 1.0f,
+        onKeyEvent  = { event ->
             when (event.key) {
                 Key.Enter, Key.NumPadEnter, Key.DirectionCenter,
                 Key.Back, Key.Escape -> { onHangUp(); true }
@@ -144,15 +134,17 @@ fun ActiveCallCard(
 private fun CardShell(
     accentColor: Color,
     pulseAlpha: Float,
-    focusRequester: FocusRequester,
     onKeyEvent: (KeyEvent) -> Boolean,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) { focusRequester.requestFocus() }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .focusRequester(focusRequester)
-            .onKeyEvent(onKeyEvent),
+            .onDpadKeyDown(onKeyEvent),
     ) {
         Box(
             modifier = Modifier
@@ -188,7 +180,6 @@ private fun CardButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
-    val btnShape = RoundedCornerShape(10.dp)
     Box(
         modifier = modifier
             .height(46.dp)

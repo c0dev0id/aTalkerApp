@@ -16,7 +16,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
-import android.view.InputDevice
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -66,9 +65,7 @@ fun DialpadScreen(onDial: (String) -> Unit, onClose: () -> Unit) {
             .fillMaxSize()
             .background(OverlayBackground)
             .focusRequester(focusRequester)
-            .onKeyEvent { event ->
-                if (event.nativeKeyEvent.source == InputDevice.SOURCE_KEYBOARD) return@onKeyEvent false
-                if (event.type != KeyEventType.KeyDown) return@onKeyEvent false
+            .onDpadKeyDown { event ->
                 when (event.key) {
                     Key.DirectionUp -> {
                         if (selRow > 0) selRow--

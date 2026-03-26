@@ -1,6 +1,5 @@
 package de.codevoid.aTalkerApp.ui
 
-import android.view.InputDevice
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -66,9 +65,7 @@ fun TabbedOverlay(
             .fillMaxSize()
             .background(OverlayBackground)
             // Tab switching via DMD remote SWITCH_IN (F6=136) / SWITCH_OUT (F7=137)
-            .onKeyEvent { event ->
-                if (event.nativeKeyEvent.source == InputDevice.SOURCE_KEYBOARD) return@onKeyEvent false
-                if (event.type != KeyEventType.KeyDown) return@onKeyEvent false
+            .onDpadKeyDown { event ->
                 when (event.key) {
                     Key.F6 -> { selectedTab = TABS[(selectedTab.ordinal - 1 + TABS.size) % TABS.size]; true }
                     Key.F7 -> { selectedTab = TABS[(selectedTab.ordinal + 1) % TABS.size]; true }
