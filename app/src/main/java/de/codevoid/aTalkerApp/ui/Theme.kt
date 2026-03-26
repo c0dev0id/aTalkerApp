@@ -1,6 +1,5 @@
 package de.codevoid.aTalkerApp.ui
 
-import android.view.InputDevice
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
@@ -11,7 +10,6 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.nativeKeyEvent
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.font.Font
@@ -92,14 +90,8 @@ fun OverlayTheme(content: @Composable () -> Unit) {
 
 // ── D-pad event helper ────────────────────────────────────────────────────────
 
-/**
- * Filters to D-pad / remote key-down events only. Native HID keyboard events
- * (SOURCE_KEYBOARD) are ignored so that the DMD broadcast receiver's synthetic
- * gamepad events don't double-fire when a real keyboard is also attached.
- */
 fun Modifier.onDpadKeyDown(handler: (KeyEvent) -> Boolean): Modifier =
     onKeyEvent { event ->
-        if (event.nativeKeyEvent.source == InputDevice.SOURCE_KEYBOARD) return@onKeyEvent false
         if (event.type != KeyEventType.KeyDown) return@onKeyEvent false
         handler(event)
     }
