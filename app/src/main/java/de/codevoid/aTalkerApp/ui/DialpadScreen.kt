@@ -46,7 +46,7 @@ else
  * Call row (row 5): dominant full-width Call button.
  */
 @Composable
-fun DialpadScreen(onDial: (String) -> Unit, onContacts: () -> Unit, onClose: () -> Unit) {
+fun DialpadScreen(onDial: (String) -> Unit, onClose: () -> Unit) {
     var digits by remember { mutableStateOf("") }
     var selRow  by remember { mutableIntStateOf(3) }   // default: "0" key
     var selCol  by remember { mutableIntStateOf(1) }
@@ -71,30 +71,23 @@ fun DialpadScreen(onDial: (String) -> Unit, onContacts: () -> Unit, onClose: () 
                 if (event.type != KeyEventType.KeyDown) return@onKeyEvent false
                 when (event.key) {
                     Key.DirectionUp -> {
-                        if (selRow > 0) {
-                            selRow--
-                            // Entering ACTION_ROW from CALL_ROW: default to Backspace (col 1)
-                            if (selRow == ACTION_ROW && selCol > 1) selCol = 1
-                        }
+                        if (selRow > 0) selRow--
                         true
                     }
                     Key.DirectionDown -> {
                         if (selRow < CALL_ROW) {
                             selRow++
-                            when (selRow) {
-                                ACTION_ROW -> selCol = selCol.coerceAtMost(1)
-                                CALL_ROW   -> selCol = 0
-                            }
+                            if (selRow == CALL_ROW) selCol = 0
                         }
                         true
                     }
                     Key.DirectionLeft -> {
-                        val cols = when (selRow) { ACTION_ROW -> 2; CALL_ROW -> 1; else -> 3 }
+                        val cols = when (selRow) { CALL_ROW -> 1; else -> 3 }
                         selCol = (selCol - 1 + cols) % cols
                         true
                     }
                     Key.DirectionRight -> {
-                        val cols = when (selRow) { ACTION_ROW -> 2; CALL_ROW -> 1; else -> 3 }
+                        val cols = when (selRow) { CALL_ROW -> 1; else -> 3 }
                         selCol = (selCol + 1) % cols
                         true
                     }
@@ -103,7 +96,6 @@ fun DialpadScreen(onDial: (String) -> Unit, onContacts: () -> Unit, onClose: () 
                             onDigit     = { digits += it },
                             onBackspace = { if (digits.isNotEmpty()) digits = digits.dropLast(1) },
                             onCall      = { if (digits.isNotEmpty()) onDial(digits) },
-                            onContacts  = onContacts,
                         )
                         true
                     }
@@ -152,24 +144,13 @@ fun DialpadScreen(onDial: (String) -> Unit, onContacts: () -> Unit, onClose: () 
                 }
             }
 
-            // ── Action row: Contacts | Backspace ─────────────────────────────
-            Row(
-                modifier = Modifier.width(360.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                ActionKey(
-                    label   = "Contacts",
-                    focused = selRow == ACTION_ROW && selCol == 0,
-                    onClick = onContacts,
-                    modifier = Modifier.weight(1f).height(48.dp),
-                )
-                ActionKey(
-                    label   = "⌫",
-                    focused = selRow == ACTION_ROW && selCol == 1,
-                    onClick = { if (digits.isNotEmpty()) digits = digits.dropLast(1) },
-                    modifier = Modifier.weight(1f).height(48.dp),
-                )
-            }
+            // ── Action row: Backspace ─────────────────────────────────────────
+            ActionKey(
+                label    = "⌫",
+                focused  = selRow == ACTION_ROW,
+                onClick  = { if (digits.isNotEmpty()) digits = digits.dropLast(1) },
+                modifier = Modifier.width(360.dp).height(48.dp),
+            )
 
             // ── Call button: dominant, full width ─────────────────────────────
             val callEnabled = digits.isNotEmpty()
@@ -268,10 +249,9 @@ private fun handleConfirm(
     onDigit: (String) -> Unit,
     onBackspace: () -> Unit,
     onCall: () -> Unit,
-    onContacts: () -> Unit,
 ) = when {
     row < dialKeys.size -> onDigit(dialKeys[row][col])
-    row == ACTION_ROW   -> when (col) { 0 -> onContacts(); 1 -> onBackspace(); else -> Unit }
+    row == ACTION_ROW   -> onBackspace()
     row == CALL_ROW     -> onCall()
     else                -> Unit
 }

@@ -147,9 +147,8 @@ fun TabbedOverlay(
                     }
                 OverlayTab.Dialpad ->
                     DialpadScreen(
-                        onDial     = onDial,
-                        onContacts = { selectedTab = OverlayTab.Contacts },
-                        onClose    = onClose,
+                        onDial  = onDial,
+                        onClose = onClose,
                     )
             }
         }
