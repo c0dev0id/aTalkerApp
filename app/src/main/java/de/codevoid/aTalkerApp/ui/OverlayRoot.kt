@@ -11,24 +11,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import de.codevoid.aTalkerApp.CallManager
 import de.codevoid.aTalkerApp.CallUiState
-import de.codevoid.aTalkerApp.data.Contact
-import de.codevoid.aTalkerApp.data.ContactsRepository
 
 @Composable
 fun OverlayRoot(onDial: (String) -> Unit) {
     val state by CallManager.state.collectAsState()
 
-    // Cache the last call state so the card can still render during the exit animation
-    // (state may already be Idle/ShowingContacts by the time the slide-out completes).
+    // Cache the last call state so the card can still render during the exit animation.
     var cachedCall by remember { mutableStateOf<CallUiState?>(null) }
     LaunchedEffect(state) {
         if (state is CallUiState.Incoming || state is CallUiState.Active) cachedCall = state
@@ -38,22 +33,26 @@ fun OverlayRoot(onDial: (String) -> Unit) {
     OverlayTheme {
         Box(modifier = Modifier.fillMaxSize()) {
 
-            // ── Contacts / Dialpad ──────────────────────────────────────────
-            when (val s = state) {
+            // ── Tabbed overlay (contacts / history / dialpad) ─────────────────
+            when (state) {
                 is CallUiState.ShowingContacts -> OverlayFrame(dismissible = true) {
-                    ContactsScreenConnected(onDial)
+                    TabbedOverlay(
+                        initialTab = OverlayTab.Contacts,
+                        onDial     = onDial,
+                        onClose    = { CallManager.hide() },
+                    )
                 }
                 is CallUiState.ShowingDialpad -> OverlayFrame(dismissible = true) {
-                    DialpadScreen(
-                        onDial = onDial,
-                        onContacts = { CallManager.showContacts() },
-                        onClose = { CallManager.hide() },
+                    TabbedOverlay(
+                        initialTab = OverlayTab.Dialpad,
+                        onDial     = onDial,
+                        onClose    = { CallManager.hide() },
                     )
                 }
                 else -> Unit
             }
 
-            // ── Call card (slides in from left, out to right) ───────────────
+            // ── Call card (slides in from left, out to right) ─────────────────
             AnimatedVisibility(
                 visible = isCallActive,
                 enter = slideInHorizontally(animationSpec = tween(380)) { -it },
@@ -62,14 +61,14 @@ fun OverlayRoot(onDial: (String) -> Unit) {
                 when (val cs = cachedCall) {
                     is CallUiState.Incoming -> IncomingCallCard(
                         displayName = cs.displayName,
-                        number = cs.number,
-                        onAccept  = { cs.call.answer(0) },
-                        onDecline = { cs.call.reject(false, null) },
+                        number      = cs.number,
+                        onAccept    = { cs.call.answer(0) },
+                        onDecline   = { cs.call.reject(false, null) },
                     )
                     is CallUiState.Active -> ActiveCallCard(
                         displayName = cs.displayName,
-                        number = cs.number,
-                        onHangUp = { cs.call.disconnect() },
+                        number      = cs.number,
+                        onHangUp    = { cs.call.disconnect() },
                     )
                     else -> Unit
                 }
@@ -109,38 +108,5 @@ private fun OverlayFrame(
                 ) {},
             content = content,
         )
-    }
-}
-
-@Composable
-private fun ContactsScreenConnected(onDial: (String) -> Unit) {
-    val context = LocalContext.current
-    var contacts by remember { mutableStateOf(emptyList<Contact>()) }
-    var loading by remember { mutableStateOf(true) }
-
-    LaunchedEffect(Unit) {
-        contacts = ContactsRepository.load(context)
-        loading = false
-    }
-
-    if (loading) {
-        LoadingScreen()
-    } else {
-        ContactsScreen(
-            contacts = contacts,
-            onCall = { contact -> onDial(contact.phoneNumber) },
-            onDialpad = { CallManager.showDialpad() },
-            onClose = { CallManager.hide() },
-        )
-    }
-}
-
-@Composable
-private fun LoadingScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize().background(OverlayBackground),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text("Loading contacts…", color = TextSecondary, fontSize = TextSizeLarge)
     }
 }
