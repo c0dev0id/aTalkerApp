@@ -74,11 +74,16 @@ jobs:
             --out "aTalkerApp-${{ steps.sha.outputs.short }}.apk" \
             app-release-aligned.apk
 
+      - name: Delete previous dev release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release delete dev --cleanup-tag --yes || true
+
       - name: Publish pre-release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: snapshot-${{ steps.sha.outputs.short }}
-          name: Snapshot ${{ steps.sha.outputs.short }}
+          tag_name: dev
+          name: Dev ${{ steps.sha.outputs.short }}
           draft: false
           prerelease: true
           generate_release_notes: true
