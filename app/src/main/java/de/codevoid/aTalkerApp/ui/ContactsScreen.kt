@@ -131,7 +131,6 @@ fun ContactsScreen(
 
                 FilterColumn(
                     filterIndex  = filterIndex,
-                    byLastName   = byLastName,
                     panelFocused = filterFocused,
                     onSelect     = { idx -> filterIndex = idx; filterFocused = true },
                 )
@@ -139,9 +138,10 @@ fun ContactsScreen(
                 LazyColumn(state = listState, modifier = Modifier.weight(1f)) {
                     itemsIndexed(filtered) { index, contact ->
                         ContactRow(
-                            contact = contact,
-                            focused = !filterFocused && index == selectedIndex,
-                            onClick = { onCall(contact) },
+                            contact    = contact,
+                            byLastName = byLastName,
+                            focused    = !filterFocused && index == selectedIndex,
+                            onClick    = { onCall(contact) },
                         )
                     }
                 }
@@ -168,7 +168,6 @@ fun ContactsScreen(
 @Composable
 private fun FilterColumn(
     filterIndex: Int,
-    byLastName: Boolean,
     panelFocused: Boolean,
     onSelect: (Int) -> Unit,
 ) {
@@ -181,12 +180,11 @@ private fun FilterColumn(
     ) {
         filterGroups.forEachIndexed { idx, label ->
             FilterButton(
-                label        = label,
-                isActive     = idx == filterIndex,
-                isFocused    = panelFocused && idx == filterIndex,
-                byLastName   = byLastName,
-                modifier     = Modifier.weight(1f).fillMaxWidth(),
-                onClick      = { onSelect(idx) },
+                label    = label,
+                isActive = idx == filterIndex,
+                isFocused = panelFocused && idx == filterIndex,
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                onClick  = { onSelect(idx) },
             )
         }
     }
@@ -197,7 +195,6 @@ private fun FilterButton(
     label: String,
     isActive: Boolean,
     isFocused: Boolean,
-    byLastName: Boolean,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
@@ -224,34 +221,30 @@ private fun FilterButton(
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                label,
-                color = when {
-                    isFocused -> FocusHighlight
-                    isActive  -> FocusHighlight.copy(alpha = 0.85f)
-                    else      -> TextSecondary.copy(alpha = 0.45f)
-                },
-                fontSize   = TextSizeSmall,
-                fontWeight = if (isActive) FontWeight.Bold else FontWeight.Normal,
-            )
-            // Show which name field is active for filtering
-            if (isActive) {
-                Text(
-                    if (byLastName) "LN" else "FN",
-                    color      = if (byLastName) IncomingAmber else TextSecondary.copy(alpha = 0.55f),
-                    fontSize   = TextSizeTiny,
-                    fontWeight = FontWeight.Medium,
-                )
-            }
-        }
+        Text(
+            label,
+            color = when {
+                isFocused -> FocusHighlight
+                isActive  -> FocusHighlight.copy(alpha = 0.85f)
+                else      -> TextSecondary.copy(alpha = 0.45f)
+            },
+            fontSize   = TextSizeSmall,
+            fontWeight = if (isActive) FontWeight.Bold else FontWeight.Normal,
+        )
     }
 }
 
 // ─── Contact row ──────────────────────────────────────────────────────────────
 
+private fun displayName(contact: Contact, byLastName: Boolean): String {
+    if (!byLastName) return contact.displayName
+    val words = contact.displayName.trim().split("\\s+".toRegex())
+    if (words.size < 2) return contact.displayName
+    return "${words.last()}, ${words.dropLast(1).joinToString(" ")}"
+}
+
 @Composable
-private fun ContactRow(contact: Contact, focused: Boolean, onClick: () -> Unit) {
+private fun ContactRow(contact: Contact, byLastName: Boolean, focused: Boolean, onClick: () -> Unit) {
     val rowShape = RoundedCornerShape(12.dp)
 
     Row(
@@ -284,7 +277,7 @@ private fun ContactRow(contact: Contact, focused: Boolean, onClick: () -> Unit) 
                 .padding(vertical = 8.dp),
         ) {
             Text(
-                contact.displayName,
+                displayName(contact, byLastName),
                 color      = TextPrimary,
                 fontSize   = TextSizeMedium,
                 fontWeight = if (focused) FontWeight.Bold else FontWeight.Medium,
