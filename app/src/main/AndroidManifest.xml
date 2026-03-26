@@ -25,11 +25,13 @@
         android:theme="@style/Theme.App"
         android:supportsRtl="true">
 
-        <!-- Setup/permissions screen — the only "main" activity -->
+        <!-- Invisible launcher — transparent window, no UI, only triggers system dialogs -->
         <activity
             android:name=".PermissionsActivity"
             android:exported="true"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:excludeFromRecents="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
