@@ -148,9 +148,9 @@ private fun CardShell(
     ) {
         Box(
             modifier = Modifier
-                .padding(start = 20.dp, top = 20.dp)
+                .padding(end = 20.dp, top = 20.dp)
                 .width(370.dp)
-                .align(Alignment.TopStart)
+                .align(Alignment.TopEnd)
                 .shadow(
                     elevation    = 24.dp,
                     shape        = cardShape,

@@ -55,7 +55,7 @@ fun OverlayRoot(onDial: (String) -> Unit) {
             // ── Call card (slides in from left, out to right) ─────────────────
             AnimatedVisibility(
                 visible = isCallActive,
-                enter = slideInHorizontally(animationSpec = tween(380)) { -it },
+                enter = slideInHorizontally(animationSpec = tween(380)) {  it },
                 exit  = slideOutHorizontally(animationSpec = tween(320)) {  it },
             ) {
                 when (val cs = cachedCall) {
