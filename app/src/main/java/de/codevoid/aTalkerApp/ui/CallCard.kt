@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -21,7 +22,13 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import java.util.concurrent.TimeUnit
 
-private val cardShape = RoundedCornerShape(12.dp)
+private val cardShape = RoundedCornerShape(16.dp)
+// Subtle top-lit depth gradient — matches aR2Launcher FocusableButton style
+private val depthGradient = Brush.verticalGradient(
+    0f   to Color.White.copy(alpha = 0.11f),
+    0.45f to Color.Transparent,
+    1f   to Color.Black.copy(alpha = 0.08f),
+)
 
 /**
  * Incoming-call card. Amber accent strip pulses while ringing.
@@ -143,30 +150,28 @@ private fun CardShell(
 ) {
     Box(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .focusRequester(focusRequester)
             .onKeyEvent(onKeyEvent),
     ) {
-        // Card fills the zone width; top-aligned with a small inset
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp, start = 8.dp, end = 8.dp)
                 .clip(cardShape)
                 .background(CardSurface)
                 .border(1.5.dp, accentColor.copy(alpha = pulseAlpha * 0.6f), cardShape),
         ) {
             Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
-                // Accent strip — communicates state at a glance, matches history row style
+                // 12dp accent strip — matches aR2Launcher left-bar style
                 Box(
                     Modifier
-                        .width(4.dp)
+                        .width(12.dp)
                         .fillMaxHeight()
                         .background(accentColor.copy(alpha = pulseAlpha)),
                 )
                 Column(
                     modifier = Modifier
-                        .padding(start = 12.dp, top = 14.dp, end = 12.dp, bottom = 14.dp),
+                        .padding(start = 14.dp, top = 14.dp, end = 14.dp, bottom = 14.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                     content = content,
                 )
@@ -189,6 +194,7 @@ private fun CardButton(
             .height(46.dp)
             .clip(btnShape)
             .background(color.copy(alpha = if (focused) 1f else 0.7f))
+            .background(depthGradient)   // top-lit highlight
             .border(2.dp, if (focused) FocusHighlight else Color.Transparent, btnShape)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,

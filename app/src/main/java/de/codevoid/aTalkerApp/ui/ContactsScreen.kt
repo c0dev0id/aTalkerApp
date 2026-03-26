@@ -226,7 +226,7 @@ private fun displayName(contact: Contact, byLastName: Boolean): String {
 
 @Composable
 private fun ContactRow(contact: Contact, byLastName: Boolean, focused: Boolean, onClick: () -> Unit) {
-    val rowShape = RoundedCornerShape(12.dp)
+    val rowShape = RoundedCornerShape(16.dp)
 
     Row(
         modifier = Modifier
@@ -245,7 +245,7 @@ private fun ContactRow(contact: Contact, byLastName: Boolean, focused: Boolean, 
         // Left accent strip — lights up on focus
         Box(
             Modifier
-                .width(4.dp)
+                .width(12.dp)
                 .height(52.dp)
                 .background(if (focused) FocusHighlight else Color.Transparent),
         )

@@ -7,17 +7,15 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import de.codevoid.aTalkerApp.CallManager
 import de.codevoid.aTalkerApp.CallState
 import de.codevoid.aTalkerApp.OverlayNav
-
-// Fixed width reserved for the call card on the right edge.
-// The panel always stops here so a call card never overlaps panel content.
-private val CallZoneWidth = 270.dp
 
 @Composable
 fun OverlayRoot(onDial: (String) -> Unit) {
@@ -34,8 +32,9 @@ fun OverlayRoot(onDial: (String) -> Unit) {
     OverlayTheme {
         Box(modifier = Modifier.fillMaxSize()) {
 
-            // ── Backdrop — tapping outside the panel dismisses it ─────────────
+            // ── Contacts / history / dialpad panel — centered ─────────────────
             if (nav != OverlayNav.Hidden) {
+                // Transparent backdrop — tap outside the panel to dismiss
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -44,13 +43,16 @@ fun OverlayRoot(onDial: (String) -> Unit) {
                             interactionSource = remember { MutableInteractionSource() },
                         ) { CallManager.hide() },
                 )
-            }
-
-            // ── Left panel (contacts / history / dialpad) ─────────────────────
-            // fillMaxSize + end padding constrains TabbedOverlay to the left zone,
-            // leaving the right CallZoneWidth transparent for the call card.
-            if (nav != OverlayNav.Hidden) {
-                Box(modifier = Modifier.fillMaxSize().padding(end = CallZoneWidth)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(0.85f)
+                        .align(Alignment.Center)
+                        .clip(RoundedCornerShape(16.dp))
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() },
+                        ) {},
+                ) {
                     TabbedOverlay(
                         initialTab = if (nav == OverlayNav.Dialpad) OverlayTab.Dialpad
                                      else OverlayTab.Contacts,
@@ -60,13 +62,12 @@ fun OverlayRoot(onDial: (String) -> Unit) {
                 }
             }
 
-            // ── Right call zone ───────────────────────────────────────────────
-            // Always anchored to the right edge; content fades in/out with call state.
+            // ── Call card — top-right, independent of the panel ───────────────
             Box(
                 modifier = Modifier
-                    .width(CallZoneWidth)
-                    .fillMaxHeight()
-                    .align(Alignment.TopEnd),
+                    .align(Alignment.TopEnd)
+                    .padding(top = 12.dp, end = 12.dp)
+                    .width(300.dp),
             ) {
                 AnimatedVisibility(
                     visible = isCallActive,

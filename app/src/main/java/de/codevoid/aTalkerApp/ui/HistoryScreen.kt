@@ -88,7 +88,7 @@ fun HistoryScreen(
 @Composable
 private fun HistoryRow(entry: CallLogEntry, focused: Boolean, onClick: () -> Unit) {
     val accentColor = callTypeColor(entry.callType)
-    val rowShape    = RoundedCornerShape(12.dp)
+    val rowShape    = RoundedCornerShape(16.dp)
 
     Row(
         modifier = Modifier
@@ -107,7 +107,7 @@ private fun HistoryRow(entry: CallLogEntry, focused: Boolean, onClick: () -> Uni
         // Left accent strip — color signals call direction/outcome
         Box(
             Modifier
-                .width(4.dp)
+                .width(12.dp)
                 .height(52.dp)
                 .background(if (focused) accentColor else accentColor.copy(alpha = 0.4f)),
         )

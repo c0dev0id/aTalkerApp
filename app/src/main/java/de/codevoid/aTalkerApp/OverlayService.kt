@@ -58,12 +58,14 @@ class OverlayService : Service() {
         )
 
         observeCallState()
-        CallManager.showContacts()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == ACTION_SHOW_CONTACTS) {
-            CallManager.showContacts()
+        when (intent?.action) {
+            ACTION_SHOW_CONTACTS -> CallManager.showContacts()
+            // No action = started by user (PermissionsActivity) or by an incoming call
+            // (PhoneService). Only open contacts when there is no active call.
+            null -> if (CallManager.call.value is CallState.Idle) CallManager.showContacts()
         }
         return START_STICKY
     }
