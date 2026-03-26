@@ -1,0 +1,50 @@
+package de.codevoid.aTalkerApp.data
+
+import android.content.Context
+import android.provider.ContactsContract
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
+object ContactsRepository {
+
+    suspend fun load(context: Context): List<Contact> = withContext(Dispatchers.IO) {
+        val contacts = mutableListOf<Contact>()
+        val resolver = context.contentResolver
+
+        val projection = arrayOf(
+            ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
+            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+            ContactsContract.CommonDataKinds.Phone.NUMBER,
+            ContactsContract.CommonDataKinds.Phone.TYPE,
+        )
+
+        resolver.query(
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+            projection,
+            null, null,
+            "${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME} ASC"
+        )?.use { cursor ->
+            val idCol = cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.CONTACT_ID)
+            val nameCol = cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+            val numberCol = cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER)
+            val typeCol = cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.TYPE)
+
+            while (cursor.moveToNext()) {
+                val typeLabel = ContactsContract.CommonDataKinds.Phone.getTypeLabel(
+                    context.resources,
+                    cursor.getInt(typeCol),
+                    ""
+                ).toString()
+
+                contacts += Contact(
+                    id = cursor.getLong(idCol),
+                    displayName = cursor.getString(nameCol) ?: "",
+                    phoneNumber = cursor.getString(numberCol) ?: "",
+                    phoneType = typeLabel,
+                )
+            }
+        }
+
+        contacts
+    }
+}

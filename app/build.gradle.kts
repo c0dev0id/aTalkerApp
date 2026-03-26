@@ -45,4 +45,10 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     debugImplementation("androidx.compose.ui:ui-tooling")
+
+    implementation("androidx.lifecycle:lifecycle-service:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
+    implementation("androidx.savedstate:savedstate:1.2.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+    implementation("androidx.media:media:1.7.0")
 }
