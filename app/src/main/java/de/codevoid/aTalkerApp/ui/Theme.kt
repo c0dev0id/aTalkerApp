@@ -34,6 +34,7 @@ val TextSizeHuge   = 48.sp
 val TextSizeLarge  = 36.sp
 val TextSizeMedium = 28.sp
 val TextSizeSmall  = 22.sp
+val TextSizeTiny   = 14.sp
 
 private val Colors = darkColorScheme(
     primary      = FocusHighlight,
