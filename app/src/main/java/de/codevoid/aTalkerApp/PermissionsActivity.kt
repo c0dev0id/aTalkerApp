@@ -43,12 +43,26 @@ class PermissionsActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Core principle: this app is overlay-only and must never steal focus from
+        // the foreground app. If setup is complete, start the service and get out
+        // immediately — before any UI frame is rendered.
+        tryStartService()
+        if (allPermissionsGranted()) {
+            finish()
+            return
+        }
         setContent { Screen() }
     }
 
     override fun onResume() {
         super.onResume()
         tryStartService()
+        // Auto-close once the last permission is granted so the user lands back
+        // in whichever app they were in before — not here.
+        if (allPermissionsGranted()) {
+            finish()
+            return
+        }
         resumeTick++
     }
 
@@ -88,6 +102,11 @@ class PermissionsActivity : ComponentActivity() {
             roleLauncher.launch(rm.createRequestRoleIntent(RoleManager.ROLE_DIALER))
         }
     }
+
+    private fun allPermissionsGranted(): Boolean =
+        Settings.canDrawOverlays(this) &&
+        corePermissions.all { ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED } &&
+        getSystemService(RoleManager::class.java).isRoleHeld(RoleManager.ROLE_DIALER)
 
     private fun tryStartService() {
         if (Settings.canDrawOverlays(this)) {
