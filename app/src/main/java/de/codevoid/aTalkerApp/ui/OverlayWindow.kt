@@ -6,6 +6,7 @@ import android.view.InputDevice
 import android.view.KeyCharacterMap
 import android.view.KeyEvent
 import android.view.WindowManager
+import android.os.SystemClock
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
@@ -58,10 +59,15 @@ class OverlayWindow(private val context: Context) {
      */
     fun dispatchKey(keyCode: Int, isDown: Boolean) {
         val view = composeView ?: return
-        val now = android.os.SystemClock.uptimeMillis()
+        val now = SystemClock.uptimeMillis()
         val action = if (isDown) KeyEvent.ACTION_DOWN else KeyEvent.ACTION_UP
-        val raw = KeyEvent(now, now, action, keyCode, 0, 0, KeyCharacterMap.VIRTUAL_KEYBOARD, 0)
-        view.dispatchKeyEvent(KeyEvent.changeSource(raw, InputDevice.SOURCE_GAMEPAD))
+        // 10-arg constructor includes source; SOURCE_GAMEPAD distinguishes injected events from
+        // native HID keyboard events so the SOURCE_KEYBOARD filter in onKeyEvent handlers
+        // correctly lets these through while blocking duplicate native events.
+        view.dispatchKeyEvent(
+            KeyEvent(now, now, action, keyCode, 0, 0,
+                KeyCharacterMap.VIRTUAL_KEYBOARD, 0, 0, InputDevice.SOURCE_GAMEPAD)
+        )
     }
 
     fun dismiss() {
