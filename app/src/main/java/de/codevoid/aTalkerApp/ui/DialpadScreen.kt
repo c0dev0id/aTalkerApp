@@ -216,7 +216,7 @@ private fun DialKey(label: String, focused: Boolean, onClick: () -> Unit) {
         modifier = Modifier
             .size(120.dp, 80.dp)
             .clip(shape)
-            .background(if (focused) RowSelected else keyGradient)
+            .run { if (focused) background(RowSelected) else background(keyGradient) }
             .border(
                 width = 1.5.dp,
                 color = if (focused) FocusHighlight else Color(0xFF1A2D3E),
@@ -273,7 +273,7 @@ private fun handleConfirm(
     onContacts: () -> Unit,
 ) = when {
     row < dialKeys.size -> onDigit(dialKeys[row][col])
-    row == ACTION_ROW   -> when (col) { 0 -> onContacts(); 1 -> onBackspace() }
+    row == ACTION_ROW   -> when (col) { 0 -> onContacts(); 1 -> onBackspace(); else -> Unit }
     row == CALL_ROW     -> onCall()
     else                -> Unit
 }
