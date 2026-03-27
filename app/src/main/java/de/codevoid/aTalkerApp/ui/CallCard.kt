@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.platform.LocalContext
@@ -149,7 +150,11 @@ private fun CardShell(
         modifier = Modifier
             .fillMaxWidth()
             .focusRequester(focusRequester)
-            .onDpadKeyDown(onKeyEvent),
+            .focusable()
+            .onPreviewKeyEvent { event ->
+                if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                onKeyEvent(event)
+            },
     ) {
         Box(
             modifier = Modifier
