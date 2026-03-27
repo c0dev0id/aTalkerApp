@@ -1,6 +1,7 @@
 package de.codevoid.aTalkerApp.data
 
 import android.content.Context
+import android.net.Uri
 import android.provider.ContactsContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -51,4 +52,20 @@ object ContactsRepository {
 
         contacts
     }
+
+    /** Reverse-lookup a phone number → contact display name, or null if not found. */
+    suspend fun lookupName(context: Context, number: String): String? =
+        withContext(Dispatchers.IO) {
+            val uri = Uri.withAppendedPath(
+                ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
+                Uri.encode(number),
+            )
+            context.contentResolver.query(
+                uri,
+                arrayOf(ContactsContract.PhoneLookup.DISPLAY_NAME),
+                null, null, null,
+            )?.use { cursor ->
+                if (cursor.moveToFirst()) cursor.getString(0) else null
+            }
+        }
 }

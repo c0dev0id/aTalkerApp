@@ -16,8 +16,10 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import de.codevoid.aTalkerApp.data.ContactsRepository
 import kotlinx.coroutines.delay
 import java.util.concurrent.TimeUnit
 
@@ -42,6 +44,14 @@ fun IncomingCallCard(
     onDecline: () -> Unit,
 ) {
     var focusedButton by remember { mutableIntStateOf(1) }  // 0 = Decline, 1 = Accept
+
+    // Resolve caller name: contacts > CallerID > "Unknown"
+    val context = LocalContext.current
+    var contactName by remember(number) { mutableStateOf<String?>(null) }
+    LaunchedEffect(number) { contactName = ContactsRepository.lookupName(context, number) }
+    val shownName = contactName
+        ?: displayName.takeIf { it != number }
+        ?: "Unknown"
 
     // Amber pulse — signals urgency while ringing
     val pulse = rememberInfiniteTransition(label = "ring")
@@ -69,7 +79,7 @@ fun IncomingCallCard(
         Text("Incoming Call", color = IncomingAmber, fontSize = TextSizeSmall,
             fontWeight = FontWeight.Medium)
         Spacer(Modifier.height(2.dp))
-        Text(displayName, color = TextPrimary, fontSize = TextSizeLarge,
+        Text(shownName, color = TextPrimary, fontSize = TextSizeLarge,
             fontWeight = FontWeight.Bold)
         Text(number, color = TextSecondary, fontSize = TextSizeMedium)
         Spacer(Modifier.height(12.dp))
