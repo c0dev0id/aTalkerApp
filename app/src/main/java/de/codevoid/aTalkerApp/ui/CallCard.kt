@@ -60,8 +60,7 @@ fun IncomingCallCard(
             when (event.key) {
                 Key.DirectionLeft  -> { focusedButton = 0; true }
                 Key.DirectionRight -> { focusedButton = 1; true }
-                Key.Enter, Key.NumPadEnter, Key.DirectionCenter ->
-                    { if (focusedButton == 1) onAccept() else onDecline(); true }
+                Key.Enter, Key.NumPadEnter, Key.DirectionCenter -> { onAccept(); true }
                 Key.Back, Key.Escape -> { onDecline(); true }
                 else -> false
             }
@@ -83,8 +82,6 @@ fun IncomingCallCard(
             CardButton("Accept",  AcceptGreen, focused = focusedButton == 1,
                 modifier = Modifier.weight(1f), onClick = onAccept)
         }
-        Spacer(Modifier.height(4.dp))
-        Text("← Decline    Accept →", color = TextSecondary, fontSize = TextSizeSmall)
     }
 }
 
@@ -123,8 +120,6 @@ fun ActiveCallCard(
         Spacer(Modifier.height(12.dp))
         CardButton("End Call", RejectRed, focused = true,
             modifier = Modifier.fillMaxWidth(), onClick = onHangUp)
-        Spacer(Modifier.height(4.dp))
-        Text("CONFIRM / BACK = End Call", color = TextSecondary, fontSize = TextSizeSmall)
     }
 }
 
